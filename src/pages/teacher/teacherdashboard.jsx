@@ -212,7 +212,7 @@ const Teacherdashboard = () => {
       key: "description",
       render: (text) => {
     if (!text) return "";
-    return text.length > 30 ? text.substring(0, 30) + "..." : text;
+    return text.length > 10 ? text.substring(0, 10) + "..." : text;
   },
 
     },
