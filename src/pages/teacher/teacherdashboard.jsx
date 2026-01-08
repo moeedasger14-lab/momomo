@@ -17,7 +17,7 @@ import {
   ProTable,
 } from "@ant-design/pro-components";
 import { Tabs, Card, Button, Dropdown, TimePicker } from "antd";
-import React, { Children } from "react";
+import React, { Children, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Teacherdashboard = () => {
@@ -27,7 +27,23 @@ const Teacherdashboard = () => {
 
   const handleCourses = (values) => {
     const id = Date.now();
-    const newCourses = { ...values, id, key: id };
+    const newCourses = {
+    ...values,
+    id,
+    key: id,
+    // format dates
+    coursestartdate: values.coursestartdate
+      ? values.coursestartdate.format("YYYY-MM-DD")
+      : "",
+    courseend: values.courseend
+      ? values.courseend.format("YYYY-MM-DD")
+      : "",
+    // format timing range
+    timing: values.timing
+      ? `${values.timing[0].format("HH:mm")} - ${values.timing[1].format("HH:mm")}`
+      : "",
+  };
+
     setCourses((prev) => {
       const next = [...prev, newCourses];
       localStorage.setItem("Courses", JSON.stringify(next));
@@ -151,77 +167,83 @@ const Teacherdashboard = () => {
   const columns = [
     {
       title: "Course Name",
-      dataindex: "coursename",
+      dataIndex: "coursename",
       key: "coursename",
     },
     {
       title: "Which type of Course",
-      dataindex: "coursetype",
+      dataIndex: "coursetype",
       key: "coursetype",
     },
     {
       title: "Duration",
-      dataindex: "duration",
+      dataIndex: "duration",
       key: "duration",
     },
     {
       title: "Course Price",
-      dataindex: "courseprice",
+      dataIndex: "courseprice",
       key: "courseprice",
     },
     {
       title: "Price Status",
-      dataindex: "pricestatus",
+      dataIndex: "pricestatus",
       key: "pricestatus",
     },
     {
       title: "Course Starting Date",
-      dataindex: "coursestartdate",
+      dataIndex: "coursestartdate",
       key: "coursestartdate",
+      render: (value) => value || "",
+
     },
     {
       title: "Course Ending Date",
-      dataindex: "courseend",
+      dataIndex: "courseend",
       key: "courseend",
+      render: (value) => value || "",
+
     },
     {
       title: "Offers",
-      dataindex: "offers",
+      dataIndex: "offers",
       key: "offers",
     },
     {
       title: "Timing",
-      dataindex: "timing",
+      dataIndex: "timing",
       key: "timing",
+      render: (value) => value || "",
+
     },
     {
       title: "Description",
-      dataindex: "description",
+      dataIndex: "description",
       key: "description",
     },
     {
       title: "Teacher Name",
-      dataindex: "teachernames",
+      dataIndex: "teachernames",
       key: "teachernames",
     },
     {
       title: "Teacher Age",
-      dataindex: "teacherage",
+      dataIndex: "teacherage",
       key: "teacherage",
     },
     {
       title: "Teacher Gender",
-      dataindex: "teachergender",
+      dataIndex: "teachergender",
       key: "teachergender",
     },
     {
       title: "Teaching Experience",
-      dataindex: "teacherexperience",
+      dataIndex: "teacherexperience",
       key: "teacherexperience",
     },
     {
       title: "Class Capacity",
-      dataindex: "classcapacity",
+      dataIndex: "classcapacity",
       key: "classcapacity",
     },
     {
@@ -285,25 +307,17 @@ const Teacherdashboard = () => {
             }}
             extra={
               <ModalForm
-                dateFormatter
+               
+                
                 onFinish={handleCourses}
-                submitter={{
-                  render: (props, dom) => {
-                    return [
-                      <Button key="cancel">{/* Cancel button */}Cancel</Button>,
-                      <Button key="save" type="primary">
-                        {/* Save button */}Save Course
-                      </Button>,
-                    ];
-                  },
-                }}
+             submitter={false}
                 width={800}
                 autoFocusFirstInput
                 scrollToFirstError
                 title="Create Course"
                 trigger={<Button icon={<PlusOutlined />}>Create course</Button>}
               >
-                <ProForm.Group>
+                <ProForm.Group onFinish={handleCourses}>
                   <ProFormText
                     width="md"
                     name="coursename"
@@ -348,7 +362,7 @@ const Teacherdashboard = () => {
                   />
                   <ProFormSelect
                     width="md"
-                    name="pricesatatus"
+                    name="pricestatus"
                     label="Price Status:"
                     rules={[
                       { required: true, message: "Please select time range!" },
@@ -358,7 +372,7 @@ const Teacherdashboard = () => {
                   />
                   <ProFormDatePicker
                     width="md"
-                    name="coursedatestarting"
+                    name="coursestartdate"
                     label="Course date staring"
                     placeholder="Please select course starting"
                     rules={[
@@ -367,7 +381,7 @@ const Teacherdashboard = () => {
                   />
                   <ProFormDatePicker
                     width="md"
-                    name="coursedateend"
+                    name="courseend"
                     label="Course Date End"
                     placeholder="Please select course ending date"
                     rules={[
@@ -385,7 +399,7 @@ const Teacherdashboard = () => {
                     options={opt}
                   />
                   <ProForm.Item
-                    name="timeing"
+                    name="timing"
                     label="Class Timing"
                     rules={[
                       { required: true, message: "Please select time range!" },
@@ -463,14 +477,19 @@ const Teacherdashboard = () => {
                     placeholder="Please select your class capacity"
                     options={c}
                   />
+                 <Button htmlType="submit" width="md" type="primary">Submit</Button>
                 </ProForm.Group>
               </ModalForm>
             }
           >
             <ProTable
+            rowKey="id"
+           
+            
               scroll={{ x: 1500 }}
               columns={columns}
               onLoad={5}
+              dataSource={courses}
               headerTitle="Courses"
               headStyle={{ border: "0.3px solid lightgrey" }}
               search={false}
