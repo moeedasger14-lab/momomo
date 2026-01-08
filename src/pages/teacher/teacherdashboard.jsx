@@ -31,17 +31,7 @@ const Teacherdashboard = () => {
     ...values,
     id,
     key: id,
-    // format dates
-    coursestartdate: values.coursestartdate
-      ? values.coursestartdate("YYYY-MM-DD")
-      : "",
-    courseend: values.courseend
-      ? values.courseend("YYYY-MM-DD")
-      : "",
-    // format timing range
-    timing: values.timing
-      ? `${values.timing[0].format("HH:mm")} - ${values.timing[1].format("HH:mm")}`
-      : "",
+   
   };
 
     setCourses((prev) => {
@@ -308,7 +298,7 @@ const Teacherdashboard = () => {
             extra={
               <ModalForm
                
-                
+                dateFormatter="string"
                 onFinish={handleCourses}
              submitter={false}
                 width={800}
@@ -485,7 +475,7 @@ const Teacherdashboard = () => {
             <ProTable
             rowKey="id"
            
-            
+            dateFormatter="string"
               scroll={{ x: 1500 }}
               columns={columns}
               onLoad={5}
