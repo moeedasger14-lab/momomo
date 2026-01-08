@@ -22,6 +22,18 @@ import { useNavigate } from "react-router-dom";
 
 const Teacherdashboard = () => {
   const navigate = useNavigate();
+  const getAllCourses = JSON.parse(localStorage.getItem("Courses"));
+  const [courses, setCourses] = useState(getAllCourses || []);
+
+  const handleCourses = (values) => {
+    const id = Date.now();
+    const newCourses = { ...values, id, key: id };
+    setCourses((prev) => {
+      const next = [...prev, newCourses];
+      localStorage.setItem("Courses", JSON.stringify(next));
+      return next;
+    });
+  };
   const co = [
     {
       label: "20",
@@ -224,29 +236,36 @@ const Teacherdashboard = () => {
       ),
     },
   ];
-  const c =[
+  const c = [
     {
-      label:"5 students", value:"5 students"
+      label: "5 students",
+      value: "5 students",
     },
-     {
-      label:"10 students", value:"10 students"
+    {
+      label: "10 students",
+      value: "10 students",
     },
-     {
-      label:"15 students", value:"15 students"
+    {
+      label: "15 students",
+      value: "15 students",
     },
-     {
-      label:"20 students", value:"20 students"
+    {
+      label: "20 students",
+      value: "20 students",
     },
-     {
-      label:"25 students", value:"25 students"
+    {
+      label: "25 students",
+      value: "25 students",
     },
-     {
-      label:"30 students", value:"30 students"
+    {
+      label: "30 students",
+      value: "30 students",
     },
-     {
-      label:"35 students", value:"35 students"
+    {
+      label: "35 students",
+      value: "35 students",
     },
-  ]
+  ];
   const tem = [
     {
       key: "1",
@@ -267,6 +286,7 @@ const Teacherdashboard = () => {
             extra={
               <ModalForm
                 dateFormatter
+                onFinish={handleCourses}
                 submitter={{
                   render: (props, dom) => {
                     return [
@@ -378,7 +398,7 @@ const Teacherdashboard = () => {
                     name="description"
                     label="Description:"
                     placeholder="Please enter your course description"
-                     rules={[
+                    rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
                     fieldProps={{
@@ -391,7 +411,7 @@ const Teacherdashboard = () => {
                     name="teachernames"
                     label="Teacher name:"
                     placeholder="Please enter your name"
-                     rules={[
+                    rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
                     options={[
@@ -403,7 +423,7 @@ const Teacherdashboard = () => {
                     name="teacherage"
                     label="Teacher age:"
                     placeholder="Please select your age"
-                     rules={[
+                    rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
                     options={co}
@@ -413,30 +433,35 @@ const Teacherdashboard = () => {
                     name="teachergender"
                     label="Teacher Gender:"
                     placeholder="Please select your gender"
-                     rules={[
+                    rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
                     options={[{ label: signup.gender, value: signup.gender }]}
                   />
-                   <ProFormSelect
+                  <ProFormSelect
                     width="md"
                     name="teacherexperience"
                     label="Teaching Experience:"
                     placeholder="Please select your teaching experience"
-                     rules={[
+                    rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                    options={[{ label: signup.teachingExperience, value: signup.teachingExperience }]}
+                    options={[
+                      {
+                        label: signup.teachingExperience,
+                        value: signup.teachingExperience,
+                      },
+                    ]}
                   />
-                  <ProFormSelect 
-                  width="md"
-                  name="classcapacity"
-                  label="Class Capacity:"
-                   rules={[
+                  <ProFormSelect
+                    width="md"
+                    name="classcapacity"
+                    label="Class Capacity:"
+                    rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                  placeholder="Please select your class capacity"
-                 options={c}
+                    placeholder="Please select your class capacity"
+                    options={c}
                   />
                 </ProForm.Group>
               </ModalForm>
