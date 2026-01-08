@@ -33,10 +33,10 @@ const Teacherdashboard = () => {
     key: id,
     // format dates
     coursestartdate: values.coursestartdate
-      ? values.coursestartdate.format("YYYY-MM-DD")
+      ? values.coursestartdate("YYYY-MM-DD")
       : "",
     courseend: values.courseend
-      ? values.courseend.format("YYYY-MM-DD")
+      ? values.courseend("YYYY-MM-DD")
       : "",
     // format timing range
     timing: values.timing
