@@ -210,6 +210,11 @@ const Teacherdashboard = () => {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      render: (text) => {
+    if (!text) return "";
+    return text.length > 30 ? text.substring(0, 30) + "..." : text;
+  },
+
     },
     {
       title: "Teacher Name",
