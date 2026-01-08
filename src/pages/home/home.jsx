@@ -709,7 +709,8 @@ const Home = () => {
       label:"Example",
       children:(
        <>
-       <div className="body">
+      <Card title="Want Hand Maded code here are some examples " >
+ <div className="body">
         <div className="container">
 <div className="sun"></div>
 <div className="earth">
@@ -717,6 +718,8 @@ const Home = () => {
 </div>
         </div>
        </div>
+    <br />
+      </Card>
        </>
 
       )

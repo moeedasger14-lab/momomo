@@ -203,7 +203,19 @@ const Teacherdashboard = () => {
       title: "Timing",
       dataIndex: "timing",
       key: "timing",
-      render: (value) => value || "",
+    render: (value) => {
+    if (!value) return "";
+    if (Array.isArray(value)) {
+      const [start, end] = value;
+      const toTime = (val) =>
+        val?.format
+          ? val.format("HH:mm")
+          : new Date(val).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return `${toTime(start)} - ${toTime(end)}`;
+    }
+    return value;
+  },
+
 
     },
     {
