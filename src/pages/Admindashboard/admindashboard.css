@@ -1,0 +1,9 @@
+.gradient-breadcrumb  {
+  background: linear-gradient(45deg,rgb(160, 1, 160) , #ff6ec4, #7873f5,
+   rgb(62, 62, 255), orange, lightgreen, rgb(255, 255, 87));
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-right: 8px;
+  width: fit-content;
+}

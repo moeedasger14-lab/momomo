@@ -1,0 +1,13 @@
+.bd{
+    width: 100%;
+    height: auto;
+    border: 1px solid grey;
+    background-color: black;
+    box-shadow: 1px 4px 5px lightgray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 10px;
+    border-radius: 8px;
+}
