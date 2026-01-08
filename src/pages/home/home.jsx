@@ -719,6 +719,26 @@ const Home = () => {
         </div>
        </div>
     <br />
+    <div className="banner">
+ <div className="slider" style={{ "--quantity": 6 }}>
+    <div style={{ "--position": 1 }} className="item">
+      <img  src="./images/anime-dragon-character-illustration (1).jpg" alt="lolo" /></div>
+  <div style={{ "--position": 2 }} className="item"> <img   src="./images/anime-dragon-character-illustration (2).jpg" alt="lol" /></div>   
+  <div style={{ "--position": 3 }} className="item"><img   src="./images/anime-dragon-character-illustration.jpg" alt="loo" /></div>    
+   <div style={{ "--position": 4 }} className="item"> <img   src="./images/anime-dragon-illustration (1).jpg" alt="llo" /></div>   
+     <div  style={{ "--position": 5 }} className="item"> <img  src="./images/anime-dragon-illustration (2).jpg" alt="olo" /></div> 
+    <div  style={{ "--position": 6 }} className="item"><img  src="./images/anime-dragon-illustration.jpg" alt="lo" />
+    </div>  
+    
+  </div>
+<div className="contain">
+<h1 data-Content="CSS only">
+  CSS only
+</h1>
+<div className="modal"></div>
+</div>
+
+    </div>
       </Card>
        </>
 
