@@ -24,12 +24,25 @@ const Heder = () => {
    const navigate = useNavigate();
   const [openSwitchModal, setOpenSwitchModal] = useState(false);
   const allUsers = JSON.parse(localStorage.getItem("signupdata")) || [];
-
+      
+ 
 const user = JSON.parse(localStorage.getItem("currentUser"));
 const adminAccounts = Array.isArray(allUsers)
   ? allUsers.filter((u) => u.createdBy === user?.id)
   : [];
- 
+  useEffect(() => {
+    // allow public pages
+    if (
+      location.pathname === "/login" ||
+      location.pathname === "/signup"
+    ) {
+      return;
+    }
+
+    if (!user) {
+      navigate("/login", { replace: true });
+    }
+  }, [user, location.pathname, navigate]);
 const pending =
     JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
   const approved =
@@ -185,15 +198,8 @@ const handleDeleteAccount = () => {
         : user?.role === 3
         ? userMenu
         : [];
-        const roleLabels = { 1: (user) => `${user.fullName},`
-        , 2: (user) => `${user.fullName},`,4: (user) => `${user.fullName}, `,3: (user) =>  ` ${user.fullName}`  };
-    const renderUserInfo = () => {
-      if (!user) return <Text style={{ color: "blue" }}>Guest</Text>;
-      // Auto pick role label if exists, else fallback to name
-     
+ 
 
-      
-    };
     const onMenuClick = ({ key }) =>{
         console.log("Menu clicked:", key);
         switch (key) {
@@ -295,7 +301,7 @@ const handleDeleteAccount = () => {
           </>
         )}
 
-        <div style={{ padding: "2px" }}>{renderUserInfo()}</div>
+        
          
 <Dropdown
   menu={{ items, onClick: onMenuClick }}
