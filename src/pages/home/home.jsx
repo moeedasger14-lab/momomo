@@ -706,10 +706,10 @@ const Home = () => {
     },
     {
       key:"10",
-      label:"Example",
+      label:"Hand Made Codes",
       children:(
        <>
-      <Card title="Want Hand Maded code here are some examples " >
+      <Card style={{backgroundColor:"transparent",border:"1 px solid grey"}} title="Want Hand Maded code here are some examples " >
  <div className="body">
         <div className="container">
 <div className="sun"></div>
@@ -739,7 +739,9 @@ const Home = () => {
 </div>
 
     </div>
+    <h1>You want hand made code visit our site <a>Hand Made Code.com</a></h1>
       </Card>
+      <Footercomponent />
        </>
 
       )

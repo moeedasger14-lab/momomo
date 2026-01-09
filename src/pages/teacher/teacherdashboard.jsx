@@ -16,7 +16,7 @@ import {
   ProFormTimePicker,
   ProTable,
 } from "@ant-design/pro-components";
-import { Tabs, Card, Button, Dropdown, TimePicker } from "antd";
+import { Tabs, Card, Button, Dropdown, TimePicker, Tooltip } from "antd";
 import React, { Children, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -93,15 +93,33 @@ const Teacherdashboard = () => {
   const menu = [
     {
       key: "1",
-      label: "Edit",
+      label: (
+<Tooltip  title="Edit this course">Edit</Tooltip>
+      ),
     },
     {
       key: "2",
-      label: "Delete",
+      label: (
+      <Tooltip title="This will delete your course permanently">
+        Delete
+      </Tooltip>),
+    },
+    {
+      key:"4",
+      label:(
+        <Tooltip title="This will be in pending and can be edit in pending courses">
+          Send to Pending
+        </Tooltip>
+      ),
     },
     {
       key: "3",
-      label: "Send to Approve",
+      label: (
+      <Tooltip title="This course will be sent to admin to be approved. If approved, it will show on the website">
+        Send to Approve
+      </Tooltip>
+    ),
+
     },
   ];
   const opt = [
@@ -258,7 +276,7 @@ const Teacherdashboard = () => {
       key: "action",
       render: (_, record) => (
         <>
-          <Dropdown menu={{ items: menu }}>
+          <Dropdown trigger="click" menu={{ items: menu }}>
             <Button shape="circle" icon={<SettingOutlined />} className="btn" />
           </Dropdown>
         </>

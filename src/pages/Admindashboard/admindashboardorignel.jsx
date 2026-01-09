@@ -1836,6 +1836,11 @@ const Admindashboard = () => {
         </Card>
       ),
     },
+  {
+key:"3",
+label:"Teacher Courses",
+  },
+
   ];
 
   return (
