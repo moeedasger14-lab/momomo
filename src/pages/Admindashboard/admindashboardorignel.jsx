@@ -29,6 +29,7 @@ const Admindashboard = () => {
   const [approvedTeachers, setApprovedTeachers] = useState(
     JSON.parse(localStorage.getItem("approvedTeachers")) || []
   );
+   const user = JSON.parse(localStorage.getItem("currentUser"));
   const [approvedStudents, setApprovedStudents] = useState(
     JSON.parse(localStorage.getItem("approvedStudents")) || []
   );

@@ -3,21 +3,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 const Login = () => { 
     const navigate = useNavigate();
-  const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
+ 
+     const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
   const logins = JSON.parse(localStorage.getItem("logindata")) || [];
 
   const handleLogin = (values) => {
-    const { email, password } = values;
-
-    if (!signups.length) {
-      message.error("No users found. Please signup first.");
-      navigate("/signup");
-      return;
-    }
-
-    // ✅ find user in signup array
     const user = signups.find(
-      (u) => u.email === email && u.password === password
+      (u) => u.email === values.email && u.password === values.password
     );
 
     if (!user) {
@@ -25,35 +17,19 @@ const Login = () => {
       return;
     }
 
-    // ✅ store login as array
-    const loginEntry = {
-      id: Date.now(),
-      email: user.email,
-      role: user.role,
-      loggedIn: true,
-    };
+    localStorage.setItem(
+      "logindata",
+      JSON.stringify([...logins, { id: Date.now(), email: user.email }])
+    );
 
-    const updatedLogins = [...logins, loginEntry];
-    localStorage.setItem("logindata", JSON.stringify(updatedLogins));
+    localStorage.setItem("currentUser", JSON.stringify(user));
 
     message.success("Login successful");
     navigate("/home");
   };
 
- 
-[
-  { id: 1, email: "...", password: "...", role: 4 },
-  { id: 2, email: "...", password: "...", role: 2 }
-]
 
-[
-  { id: 1700000000, email: "...", role: 4, loggedIn: true }
-]
-
-
-
-
-
+  
 
     return ( 
     <div

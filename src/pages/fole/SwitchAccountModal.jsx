@@ -1,39 +1,76 @@
-import {
-  Card,
-  Form,
-  Input,
-  message,
-  Row,
-  Col,
-  Radio,
-  Button,
-  Select,
-  Tag,
-  ColorPicker,
-} from "antd";
+import { Modal, Form, Select, Input, Button, Row, Col, Radio, message } from 'antd';
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-const { OptGroup, Option } = Select;
-const Signup = () => {
-  const navigate = useNavigate();
-       const [signups, setSignups] = useState(() => {
-    return JSON.parse(localStorage.getItem("signupdata")) || [];
-  });
+const SwitchAccountModal = ({ open, setOpen }) => {
+    const navigate = useNavigate();
+    const [form]= Form.useForm();
+    const {Option} =Select;
+    const [selectedRole, setSelectedRole] = React.useState(null);
 
-
-  const [selectedRole, setSelectedRole] = useState(null);
-const [classs, setClasss] = useState([]);
-  const [form] = Form.useForm();
- 
-  const [cities, setCities] = useState([]);
+const [cities, setCities] = useState([]);
   const [universities, setUniversities] = useState([]);
  const [school, setSchool] = useState([]);
   const [read, setRead] = useState("");
   const [live, setLive] = useState("");
 
+ const admin = JSON.parse(localStorage.getItem("currentUser"));
+  const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
 
+  const handleSubmit = (values) => {
+    console.log("FORM SUBMITTED:", values); // ✅ DEBUG (you WILL see this)
 
+    const exists = signups.some((u) => u.email === values.email);
+    if (exists) {
+      message.error("Account already exists");
+      return;
+    }
+
+    const newAccount = {
+      id: Date.now(),
+      fullName: values.fullName,
+      email: values.email,
+      password: values.password,
+      role: values.role,
+      createdBy: admin.id,
+    };
+
+    localStorage.setItem(
+      "signupdata",
+      JSON.stringify([...signups, newAccount])
+    );
+
+    message.success("Account created successfully");
+    form.resetFields();
+    setOpen(false);
+  };
+
+const roles = [
+    {
+      id: 1,
+      name: "Admin",
+      description: "Full access to all features",
+      image: "/images/human.png",
+    },
+    {
+      id: 2,
+      name: "Teacher",
+      description: "can manage courses and students",
+      image: "/images/chart.png",
+    },
+    {
+      id: 3,
+      name: "Viewer",
+      description: "Read-only access",
+      image: "/images/accountply.jpg",
+    },
+    {
+      id: 4,
+      name: "Student",
+      description: "can access learning materials",
+      image: "/images/graduation.png",
+    },
+  ];
   const handleWhereDoYouLive = (field, value) => {
     if (field === "read") {
       setRead(value);
@@ -234,141 +271,21 @@ const [classs, setClasss] = useState([]);
       ]);
     }
   };
-
-  // Custom tag renderer
-  const tagRender = (props) => {
-    const { label, value, closable, onClose } = props;
-
-    // Decide color based on value
-    let color = "default";
-
-    const subjectValues = [
-      "Mathematics",
-      "Science",
-      "History",
-      "English",
-      "Urdu",
-      "Physical",
-      "Chemistry",
-      "Biology",
-      "Geography",
-      "Computer",
-    ];
-
-    const languageValues = [
-      "Englishs",
-      "Urdus",
-      "Spanish",
-      "French",
-      "German",
-      "Arabic",
-      "Balochi",
-      "Panjabi",
-      "Chinese",
-      "Russian",
-    ];
-    const courseValues = [
-      "Frontend",
-      "Backend",
-      "Full Stack",
-      "Mobile Development",
-      "Data Science",
-      "DevOps",
-      "Cloud Computing",
-      "Cyber Security",
-      "Machine Learning",
-      "Artificial Intelligence",
-      "Blockchain",
-      "Internet of Things",
-      "Augmented Reality",
-      "Virtual Reality",
-      "Python",
-      "Java",
-      "JavaScript",
-      "C++",
-      "C#",
-      "PHP",
-      "React",
-      "Vue",
-      "Angular",
-      "Node.js",
-      "Express.js",
-      "MongoDB",
-      "PostgreSQL",
-    ];
-
-    if (subjectValues.includes(value)) {
-      color = "magenta";
-    } else if (languageValues.includes(value)) {
-      color = "volcano";
-    } else if (courseValues.includes(value)) {
-      color = "cyan";
-    }
-
-    return (
-      <Tag
-        color={color}
-        closable={closable}
-        onClose={onClose}
-        style={{ marginRight: 3 }}
-      >
-        {label}
-      </Tag>
-    );
-  };
-
-  const roles = [
-    {
-      id: 1,
-      name: "Admin",
-      description: "Full access to all features",
-      image: "/images/human.png",
-    },
-    {
-      id: 2,
-      name: "Teacher",
-      description: "can manage courses and students",
-      image: "/images/chart.png",
-    },
-    {
-      id: 3,
-      name: "Viewer",
-      description: "Read-only access",
-      image: "/images/accountply.jpg",
-    },
-    {
-      id: 4,
-      name: "Student",
-      description: "can access learning materials",
-      image: "/images/graduation.png",
-    },
-  ];
-
-  const handleSignup = (values) => {
-    const exists = signups.some((u) => u.email === values.email);
-    if (exists) {
-      message.error("User already exists");
-      return;
-    }
-
-    const user = { id: Date.now(), ...values };
-    const updated = [...signups, user];
-
-    localStorage.setItem("signupdata", JSON.stringify(updated));
-    setSignups(updated);
-
-    message.success("Signup successful");
-    navigate("/login");
-  };
-
   return (
-     <div style={{ display: "flex", justifyContent: "center" }}>
-      <Card title="Signup" style={{ width: "80%" }}>
-        <Form
+   <>
+<Modal
+  title="Switch Account"
+  open={open}
+  onCancel={() => setOpen(false)}
+  footer={null}
+  
+destroyOnClose
+>
+     <Form
+     onFinish={handleSubmit}
           form={form}
           layout="vertical"
-          onFinish={handleSignup}
-          onFinishFailed={(e) => console.log("FAILED:", e)}
+         
         >
           {/* REQUIRED hidden role field */}
           <Form.Item name="role" hidden rules={[{ required: true }]}>
@@ -509,13 +426,13 @@ const [classs, setClasss] = useState([]);
             </>
           )}
 
-          <Button type="primary" htmlType="submit">
+          <Button block type="primary" htmlType="submit">
             Submit
           </Button>
         </Form>
-      </Card>
-    </div>
-  );
-};
+</Modal>
+   </>
+  )
+}
 
-export default Signup;
+export default SwitchAccountModal;

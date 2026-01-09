@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -13,24 +13,95 @@ import {
 import Icon, {
   EditOutlined,
   MoreOutlined,
+  PlusOutlined,
   SettingFilled,
   UserAddOutlined,
 } from "@ant-design/icons";
+import SwitchAccountModal  from "../../pages/fole/SwitchAccountModal";
 const { Header } = Layout;
  const { Text } = Typography;
 const Heder = () => {
    const navigate = useNavigate();
-  
- 
-   
-    const storedUser = localStorage.getItem("signupdata");
+  const [openSwitchModal, setOpenSwitchModal] = useState(false);
+  const allUsers = JSON.parse(localStorage.getItem("signupdata")) || [];
 
-    let user = storedUser ? JSON.parse(storedUser) : null;
+const user = JSON.parse(localStorage.getItem("currentUser"));
+const adminAccounts = Array.isArray(allUsers)
+  ? allUsers.filter((u) => u.createdBy === user?.id)
+  : [];
+ 
+
+// 🔹 accounts created by this admin
+
+
+// 🔹 switch account logic
+const switchAccount = (account) => {
+  localStorage.setItem("currentUser", JSON.stringify(account));
+  message.success(`Switched to ${account.fullName}`);
+  window.location.reload();
+};
+const switchBackToAdmin = () => {
+ if (!parentAdmin) {
+    message.error("Admin account not found");
+    return;
+  }
+
+  localStorage.setItem("currentUser", JSON.stringify(parentAdmin));
+  message.success(`Switched back to Admin: ${parentAdmin.fullName}`);
+  window.location.reload();
+};
+   
+  const parentAdmin =
+  user?.createdBy
+    ? allUsers.find((u) => u.id === user.createdBy && u.role === 1)
+    : null;
+   
+ 
+  
+
        
  const adminMenu = [
   { key: "1", label: <span>Admin Dashboard</span> },
   { key: "2", label: <span>Setting</span> },
   { key: "3", label: <span>Logout</span> },
+   {
+    key: "switch",
+    label: (
+      <span>
+        <PlusOutlined /> Switch Accounts
+      </span>
+    ),
+
+    // 🔹 THIS IS THE IMPORTANT PART
+    children: [
+      ...(adminAccounts.length === 0
+        ? [
+            {
+              key: "no-acc",
+              label: <span style={{ color: "gray" }}>No accounts yet</span>,
+              disabled: true,
+            },
+          ]
+        : adminAccounts.map((acc) => ({
+            key: `acc-${acc.id}`,
+            label: `${acc.fullName} (${acc.role})`,
+            onClick: () => switchAccount(acc), // 🔹 switch here
+          }))),
+
+      {
+        type: "divider",
+      },
+
+      {
+        key: "create-account",
+        label: (
+          <span>
+            <PlusOutlined /> Create New Account
+          </span>
+        ),
+      },
+    ],
+  },
 ];
 
 
@@ -38,16 +109,28 @@ const Heder = () => {
       { key: "4", label: <span>Teacher Dashboard</span> },
       { key: "2", label: <span>Setting</span> },
       { key: "3", label: <span>Logout</span> },
-    ];
+       parentAdmin && {
+    key: "switch-back",
+    label: <span>Switch Back to Admin</span>,
+  },
+    ].filter(Boolean);
     const studentMenu = [
       { key: "5", label: <span>Student Dashboard</span> },
       { key: "2", label: <span>Setting</span> },
       { key: "3", label: <span>Logout</span> },
-    ];
+      parentAdmin && {
+    key: "switch-back",
+    label: <span>Switch Back to Admin</span>,
+  },
+    ].filter(Boolean);
     const userMenu = [
       { key: "2", label: <span>Setting</span> },
       { key: "3", label: <span>Logout</span> },
-    ];
+      parentAdmin && {
+    key: "switch-back",
+    label: <span>Switch Back to Admin</span>,
+  },
+    ].filter(Boolean);
     const items =
       user?.role === 1
         ? adminMenu
@@ -83,6 +166,12 @@ const Heder = () => {
     case "3":
       handleLogout();
       break;
+      case "switch-back":
+  switchBackToAdmin();
+  break;
+       case "create-account":
+      setOpenSwitchModal(true); // 🔹 open modal
+      break;
     case "4":
       navigate("/teacherdashboard");
       break;
@@ -103,9 +192,9 @@ const Heder = () => {
       okText: "Yes",
       cancelText: "No",
       onOk() {
-        localStorage.removeItem("login");
+        localStorage.removeItem("logindata");
         message.success("Logged out");
-        localStorage.removeItem("signupdata");
+       localStorage.removeItem("currentUser");
         navigate("/signup");
       },
       onCancel() {
@@ -192,6 +281,10 @@ const Heder = () => {
 
 
       </Header>
+      <SwitchAccountModal
+  open={openSwitchModal}
+  setOpen={setOpenSwitchModal}
+/>
     </>
   );
 };

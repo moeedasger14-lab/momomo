@@ -284,7 +284,7 @@ object-fit: cover;
 .banner .contain  h1::after{
     position: absolute;
     inset: 0 0 0 0;
-    content: attr(data-Content);
+    content: attr(data-content);
     z-index: 2;
   
   color: transparent;

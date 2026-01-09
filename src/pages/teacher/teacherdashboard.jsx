@@ -24,6 +24,7 @@ const Teacherdashboard = () => {
   const navigate = useNavigate();
   const getAllCourses = JSON.parse(localStorage.getItem("Courses"));
   const [courses, setCourses] = useState(getAllCourses || []);
+    const user = JSON.parse(localStorage.getItem("currentUser"));
 
   const handleCourses = (values) => {
     const id = Date.now();
