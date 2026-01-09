@@ -25,7 +25,15 @@ const Teacherdashboard = () => {
   const getAllCourses = JSON.parse(localStorage.getItem("Courses"));
   const [courses, setCourses] = useState(getAllCourses || []);
     const user = JSON.parse(localStorage.getItem("currentUser"));
-
+  if (user?.status !== "approved") {
+    return (
+      <Alert
+        message="Your account is pending admin approval"
+        type="warning"
+        showIcon
+      />
+    );
+  }
   const handleCourses = (values) => {
     const id = Date.now();
     const newCourses = {

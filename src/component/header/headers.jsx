@@ -30,16 +30,23 @@ const adminAccounts = Array.isArray(allUsers)
   ? allUsers.filter((u) => u.createdBy === user?.id)
   : [];
  
+const pending =
+    JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
+  const approved =
+    JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
 
 // 🔹 accounts created by this admin
 
 
 // 🔹 switch account logic
-const switchAccount = (account) => {
-  localStorage.setItem("currentUser", JSON.stringify(account));
-  message.success(`Switched to ${account.fullName}`);
-  window.location.reload();
-};
+ const switchableTeachers = [...pending, ...approved];
+
+  const switchAccount = (acc) => {
+    localStorage.setItem("currentUser", JSON.stringify(acc));
+    message.success(`Switched to ${acc.fullName}`);
+    window.location.reload();
+  };
+
 const switchBackToAdmin = () => {
  if (!parentAdmin) {
     message.error("Admin account not found");
@@ -65,43 +72,25 @@ const switchBackToAdmin = () => {
   { key: "2", label: <span>Setting</span> },
   { key: "3", label: <span>Logout</span> },
    {
-    key: "switch",
-    label: (
-      <span>
-        <PlusOutlined /> Switch Accounts
-      </span>
-    ),
-
-    // 🔹 THIS IS THE IMPORTANT PART
-    children: [
-      ...(adminAccounts.length === 0
-        ? [
-            {
-              key: "no-acc",
-              label: <span style={{ color: "gray" }}>No accounts yet</span>,
-              disabled: true,
-            },
-          ]
-        : adminAccounts.map((acc) => ({
-            key: `acc-${acc.id}`,
-            label: `${acc.fullName} (${acc.role})`,
-            onClick: () => switchAccount(acc), // 🔹 switch here
-          }))),
-
-      {
-        type: "divider",
-      },
-
-      {
-        key: "create-account",
-        label: (
-          <span>
-            <PlusOutlined /> Create New Account
-          </span>
-        ),
-      },
-    ],
-  },
+      key: "switch",
+      label: "Switch Account",
+      children: [
+        ...switchableTeachers.map((acc) => ({
+          key: acc.id,
+          label: `${acc.fullName} (${acc.status})`,
+          onClick: () => switchAccount(acc),
+        })),
+        { type: "divider" },
+        {
+          key: "create",
+          label: (
+            <span>
+              <PlusOutlined /> Create Teacher
+            </span>
+          ),
+        },
+      ],
+    },
 ];
 
 

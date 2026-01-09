@@ -7,28 +7,52 @@ const Login = () => {
      const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
   const logins = JSON.parse(localStorage.getItem("logindata")) || [];
 
-  const handleLogin = (values) => {
-    const user = signups.find(
+ const handleLogin = (values) => {
+    const users = JSON.parse(localStorage.getItem("signupdata")) || [];
+    const pending =
+      JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
+    const approved =
+      JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
+
+    // normal users
+    const normalUser = users.find(
       (u) => u.email === values.email && u.password === values.password
     );
-
-    if (!user) {
-      message.error("Invalid email or password");
+    if (normalUser) {
+      localStorage.setItem("currentUser", JSON.stringify(normalUser));
+      navigate("/home");
       return;
     }
 
-    localStorage.setItem(
-      "logindata",
-      JSON.stringify([...logins, { id: Date.now(), email: user.email }])
+    // 🔹 CHANGE: allow pending teacher login
+    const pendingTeacher = pending.find(
+      (u) => u.email === values.email && u.password === values.password
     );
+    if (pendingTeacher) {
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify({ ...pendingTeacher, status: "pending" })
+      );
+      message.warning("Logged in, awaiting admin approval");
+      navigate("/teacherdashboard");
+      return;
+    }
 
-    localStorage.setItem("currentUser", JSON.stringify(user));
+    // approved teacher
+    const approvedTeacher = approved.find(
+      (u) => u.email === values.email && u.password === values.password
+    );
+    if (approvedTeacher) {
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify({ ...approvedTeacher, status: "approved" })
+      );
+      navigate("/teacherdashboard");
+      return;
+    }
 
-    message.success("Login successful");
-    navigate("/home");
+    message.error("Invalid credentials");
   };
-
-
   
 
     return ( 

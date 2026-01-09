@@ -344,18 +344,33 @@ const [classs, setClasss] = useState([]);
     },
   ];
 
-  const handleSignup = (values) => {
-    const exists = signups.some((u) => u.email === values.email);
-    if (exists) {
-      message.error("User already exists");
+   const handleSignup = (values) => {
+    // 🔹 CHANGE: teacher signup goes to pending
+    if (values.role === 2) {
+      const pending =
+        JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
+
+      pending.push({
+        id: Date.now(),
+        ...values,
+        status: "pending",
+        createdByAdmin: false,
+      });
+
+      localStorage.setItem(
+        "pendingTeacherSignupData",
+        JSON.stringify(pending)
+      );
+
+      message.success("Signup successful. Await admin approval.");
+      navigate("/login");
       return;
     }
 
-    const user = { id: Date.now(), ...values };
-    const updated = [...signups, user];
-
-    localStorage.setItem("signupdata", JSON.stringify(updated));
-    setSignups(updated);
+    // normal users
+    const users = JSON.parse(localStorage.getItem("signupdata")) || [];
+    users.push({ id: Date.now(), ...values });
+    localStorage.setItem("signupdata", JSON.stringify(users));
 
     message.success("Signup successful");
     navigate("/login");

@@ -17,31 +17,25 @@ const [cities, setCities] = useState([]);
  const admin = JSON.parse(localStorage.getItem("currentUser"));
   const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
 
-  const handleSubmit = (values) => {
-    console.log("FORM SUBMITTED:", values); // ✅ DEBUG (you WILL see this)
+ const handleSubmit = (values) => {
+    const pending =
+      JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
 
-    const exists = signups.some((u) => u.email === values.email);
-    if (exists) {
-      message.error("Account already exists");
-      return;
-    }
-
-    const newAccount = {
+    // 🔹 CHANGE: admin-created teacher
+    pending.push({
       id: Date.now(),
-      fullName: values.fullName,
-      email: values.email,
-      password: values.password,
-      role: values.role,
-      createdBy: admin.id,
-    };
+      ...values,
+      role: 2,
+      status: "pending",
+      createdByAdmin: true,
+    });
 
     localStorage.setItem(
-      "signupdata",
-      JSON.stringify([...signups, newAccount])
+      "pendingTeacherSignupData",
+      JSON.stringify(pending)
     );
 
-    message.success("Account created successfully");
-    form.resetFields();
+    message.success("Teacher created and sent for approval");
     setOpen(false);
   };
 
@@ -279,7 +273,7 @@ const roles = [
   onCancel={() => setOpen(false)}
   footer={null}
   
-destroyOnClose
+destroyOnHidden
 >
      <Form
      onFinish={handleSubmit}
