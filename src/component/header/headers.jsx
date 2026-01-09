@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -185,18 +185,14 @@ const handleDeleteAccount = () => {
         : user?.role === 3
         ? userMenu
         : [];
-        const roleLabels = { 1: (user) => `${user.fullName},${user.adminType}`
-        , 2: (user) => `${user.fullName},${user.teacherType}` };
+        const roleLabels = { 1: (user) => `${user.fullName},`
+        , 2: (user) => `${user.fullName},`,4: (user) => `${user.fullName}, `,3: (user) =>  ` ${user.fullName}`  };
     const renderUserInfo = () => {
       if (!user) return <Text style={{ color: "blue" }}>Guest</Text>;
       // Auto pick role label if exists, else fallback to name
-      const roleRenderer = roleLabels[user.role];
+     
 
-      return roleRenderer ? (
-        <Text style={{ color: "gold" }}>{roleRenderer(user)}</Text>
-      ) : (
-        <Text style={{ color: "yellow" }}>{user.fullName}</Text>
-      );
+      
     };
     const onMenuClick = ({ key }) =>{
         console.log("Menu clicked:", key);
@@ -208,7 +204,7 @@ const handleDeleteAccount = () => {
       navigate("/setting");
       break;
     case "3":
-      handleLogout();
+      logout();
       break;
       case "switch-back":
   switchBackToAdmin();
@@ -228,26 +224,17 @@ const handleDeleteAccount = () => {
 
     };
     
-    const handleLogout = () => {
-     
-    Modal.confirm({
-      title: "Confirm Logout",
-      content: "Are you sure you want to logout?",
-      okText: "Yes",
-      cancelText: "No",
-      onOk() {
-        localStorage.removeItem("logindata");
-        message.success("Logged out");
-       localStorage.removeItem("currentUser");
-        navigate("/signup");
-      },
-      onCancel() {
-        message.info("Logout cancelled");
-      },
-    });
+    
+  useEffect(() => {
+    if (!user) {
+      navigate("/login", { replace: true });
+    }
+  }, [user, navigate]);
 
+  const logout = () => {
+    localStorage.removeItem("currentUser");
+    navigate("/login");
   };
- 
 
 
 

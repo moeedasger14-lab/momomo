@@ -16,7 +16,7 @@ import {
   ProFormTimePicker,
   ProTable,
 } from "@ant-design/pro-components";
-import { Tabs, Card, Button, Dropdown, TimePicker, Tooltip } from "antd";
+import { Tabs, Card, Alert, Button, Dropdown, TimePicker, Tooltip } from "antd";
 import React, { Children, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -31,7 +31,7 @@ const Teacherdashboard = () => {
         message="Your account is pending admin approval"
         type="warning"
         showIcon
-      />
+      ></Alert>
     );
   }
   const handleCourses = (values) => {

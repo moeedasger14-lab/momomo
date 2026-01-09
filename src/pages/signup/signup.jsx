@@ -266,38 +266,38 @@ const [classs, setClasss] = useState([]);
     },
   ];
 
-   const handleSignup = (values) => {
-    // 🔹 CHANGE: teacher signup goes to pending
+    const handleSignup = (values) => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const newUser = {
+      id: Date.now(),
+      ...values,
+      status: values.role === 1 ? "approved" : "pending",
+    };
+
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // Auto tables
     if (values.role === 2) {
-      const pending =
-        JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
-
-      pending.push({
-        id: Date.now(),
-        ...values,
-        status: "pending",
-        createdByAdmin: false,
-      });
-
-      localStorage.setItem(
-        "pendingTeacherSignupData",
-        JSON.stringify(pending)
-      );
-
-      message.success("Signup successful. Await admin approval.");
-      navigate("/login");
-      return;
+      const teachers = JSON.parse(localStorage.getItem("teachers")) || [];
+      teachers.push(newUser);
+      localStorage.setItem("teachers", JSON.stringify(teachers));
     }
 
-    // normal users
-    const users = JSON.parse(localStorage.getItem("signupdata")) || [];
-    users.push({ id: Date.now(), ...values });
-    localStorage.setItem("signupdata", JSON.stringify(users));
+    if (values.role === 4) {
+      const students = JSON.parse(localStorage.getItem("students")) || [];
+      students.push(newUser);
+      localStorage.setItem("students", JSON.stringify(students));
+    }
 
-    message.success("Signup successful");
+    message.success(
+      values.role === 1
+        ? "Admin created"
+        : "Signup successful. Await admin approval"
+    );
     navigate("/login");
   };
-
   return (
      <div style={{ display: "flex", justifyContent: "center" }}>
       <Card title="Signup" style={{ width: "80%" }}>

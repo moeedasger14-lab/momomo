@@ -7,53 +7,32 @@ const Login = () => {
      const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
   const logins = JSON.parse(localStorage.getItem("logindata")) || [];
 
- const handleLogin = (values) => {
-    const users = JSON.parse(localStorage.getItem("signupdata")) || [];
-    const pending =
-      JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
-    const approved =
-      JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
 
-    // normal users
-    const normalUser = users.find(
+  const handleLogin = (values) => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const user = users.find(
       (u) => u.email === values.email && u.password === values.password
     );
-    if (normalUser) {
-      localStorage.setItem("currentUser", JSON.stringify(normalUser));
+
+    if (!user) {
+      message.error("Invalid credentials");
+      return;
+    }
+
+    localStorage.setItem("currentUser", JSON.stringify(user));
+
+    if (user.status === "pending") {
+      message.warning("Account pending admin approval");
       navigate("/home");
       return;
     }
 
-    // 🔹 CHANGE: allow pending teacher login
-    const pendingTeacher = pending.find(
-      (u) => u.email === values.email && u.password === values.password
-    );
-    if (pendingTeacher) {
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({ ...pendingTeacher, status: "pending" })
-      );
-      message.warning("Logged in, awaiting admin approval");
-      navigate("/teacherdashboard");
-      return;
-    }
-
-    // approved teacher
-    const approvedTeacher = approved.find(
-      (u) => u.email === values.email && u.password === values.password
-    );
-    if (approvedTeacher) {
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({ ...approvedTeacher, status: "approved" })
-      );
-      navigate("/teacherdashboard");
-      return;
-    }
-
-    message.error("Invalid credentials");
+    if (user.role === 1) navigate("/admin");
+    if (user.role === 2) navigate("/teacherdashboard");
+    if (user.role === 4) navigate("/studentdashboard");
   };
-  
+
 
     return ( 
     <div
