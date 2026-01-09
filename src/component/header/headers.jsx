@@ -37,7 +37,11 @@ const pending =
 
 // 🔹 accounts created by this admin
 
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
+if (currentUser) {
+  localStorage.setItem("previousUser", JSON.stringify(currentUser));
+}
 // 🔹 switch account logic
  const switchableTeachers = [...pending, ...approved];
 
@@ -58,6 +62,18 @@ const switchBackToAdmin = () => {
   window.location.reload();
 };
    
+ const previousUser = JSON.parse(localStorage.getItem("previousUser"));
+  if (!previousUser) {
+    message.warning("No previous account to switch back to");
+    return;
+  }
+
+  localStorage.setItem("currentUser", JSON.stringify(previousUser));
+  localStorage.removeItem("previousUser");
+
+  message.success("Switched back successfully");
+  navigate("/home");
+ 
   const parentAdmin =
   user?.createdBy
     ? allUsers.find((u) => u.id === user.createdBy && u.role === 1)
@@ -65,6 +81,37 @@ const switchBackToAdmin = () => {
    
  
   
+const handleDeleteAccount = () => {
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  if (!user) return;
+
+  Modal.confirm({
+    title: "Delete Account",
+    content: "This action cannot be undone. Are you sure?",
+    okType: "danger",
+    onOk: () => {
+      const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
+      const updated = signups.filter(u => u.email !== user.email);
+
+      localStorage.setItem("signupdata", JSON.stringify(updated));
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("previousUser");
+
+      message.success("Account deleted successfully");
+      navigate("/login");
+    },
+  });
+};
+
+
+
+
+
+
+
+
+
+
 
        
  const adminMenu = [
@@ -84,13 +131,21 @@ const switchBackToAdmin = () => {
         {
           key: "create",
           label: (
-            <span>
+            <span onClick={()=>setOpenSwitchModal(true)}>
               <PlusOutlined /> Create Teacher
             </span>
           ),
         },
       ],
     },
+     {
+    key: "delete",
+    label: (
+      <span style={{ color: "red" }} onClick={handleDeleteAccount}>
+        Delete Account
+      </span>
+    ),
+  },
 ];
 
 
@@ -98,26 +153,26 @@ const switchBackToAdmin = () => {
       { key: "4", label: <span>Teacher Dashboard</span> },
       { key: "2", label: <span>Setting</span> },
       { key: "3", label: <span>Logout</span> },
-       parentAdmin && {
-    key: "switch-back",
-    label: <span>Switch Back to Admin</span>,
+       {
+    key: "switch",
+    label: <span onClick={switchBackToAdmin}>Switch Back</span>,
   },
     ].filter(Boolean);
     const studentMenu = [
       { key: "5", label: <span>Student Dashboard</span> },
       { key: "2", label: <span>Setting</span> },
       { key: "3", label: <span>Logout</span> },
-      parentAdmin && {
-    key: "switch-back",
-    label: <span>Switch Back to Admin</span>,
+       {
+    key: "switch",
+    label: <span onClick={switchBackToAdmin}>Switch Back</span>,
   },
     ].filter(Boolean);
     const userMenu = [
       { key: "2", label: <span>Setting</span> },
       { key: "3", label: <span>Logout</span> },
-      parentAdmin && {
-    key: "switch-back",
-    label: <span>Switch Back to Admin</span>,
+        {
+    key: "switch",
+    label: <span onClick={switchBackToAdmin}>Switch Back</span>,
   },
     ].filter(Boolean);
     const items =

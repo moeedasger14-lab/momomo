@@ -236,87 +236,9 @@ const [classs, setClasss] = useState([]);
   };
 
   // Custom tag renderer
-  const tagRender = (props) => {
-    const { label, value, closable, onClose } = props;
+  
 
-    // Decide color based on value
-    let color = "default";
-
-    const subjectValues = [
-      "Mathematics",
-      "Science",
-      "History",
-      "English",
-      "Urdu",
-      "Physical",
-      "Chemistry",
-      "Biology",
-      "Geography",
-      "Computer",
-    ];
-
-    const languageValues = [
-      "Englishs",
-      "Urdus",
-      "Spanish",
-      "French",
-      "German",
-      "Arabic",
-      "Balochi",
-      "Panjabi",
-      "Chinese",
-      "Russian",
-    ];
-    const courseValues = [
-      "Frontend",
-      "Backend",
-      "Full Stack",
-      "Mobile Development",
-      "Data Science",
-      "DevOps",
-      "Cloud Computing",
-      "Cyber Security",
-      "Machine Learning",
-      "Artificial Intelligence",
-      "Blockchain",
-      "Internet of Things",
-      "Augmented Reality",
-      "Virtual Reality",
-      "Python",
-      "Java",
-      "JavaScript",
-      "C++",
-      "C#",
-      "PHP",
-      "React",
-      "Vue",
-      "Angular",
-      "Node.js",
-      "Express.js",
-      "MongoDB",
-      "PostgreSQL",
-    ];
-
-    if (subjectValues.includes(value)) {
-      color = "magenta";
-    } else if (languageValues.includes(value)) {
-      color = "volcano";
-    } else if (courseValues.includes(value)) {
-      color = "cyan";
-    }
-
-    return (
-      <Tag
-        color={color}
-        closable={closable}
-        onClose={onClose}
-        style={{ marginRight: 3 }}
-      >
-        {label}
-      </Tag>
-    );
-  };
-
+   
   const roles = [
     {
       id: 1,
@@ -432,21 +354,39 @@ const [classs, setClasss] = useState([]);
 
           {/* ROLE SELECTION */}
           <Form.Item label="Who are you?">
-            <Row gutter={12}>
-              {roles.map((r) => (
-                <Col key={r.id}>
-                  <Button
-                    type={selectedRole === r.id ? "primary" : "default"}
-                    onClick={() => {
-                      setSelectedRole(r.id);
-                      form.setFieldsValue({ role: r.id });
-                    }}
-                  >
-                    {r.name}
-                  </Button>
-                </Col>
-              ))}
-            </Row>
+            <Row gutter={[24, 24]} justify="center">
+                         {roles.map((role) => (
+                           <Col xs={24} sm={12} md={8} lg={6} key={role.id}>
+                             <Card
+                               hoverable
+                               cover={
+                                 <img
+                                   alt={role.name}
+                                   src={role.image}
+                                   style={{ height: 150, objectFit: "cover" }}
+                                 />
+                               }
+                               onClick={() => {
+                                 setSelectedRole(role.id);
+                                 form.setFieldsValue({ role: role.id });
+                               }}
+                               style={{
+                                 borderColor:
+                                   selectedRole === role.id ? "#1890ff" : "#f0f0f0",
+                                 backgroundColor:
+                                   selectedRole === role.id ? "#e6f7ff" : "#fff",
+                                 cursor: "pointer",
+                                 textAlign: "center",
+                               }}
+                             >
+                               <Card.Meta
+                                 title={role.name}
+                                 description={role.description}
+                               />
+                             </Card>
+                           </Col>
+                         ))}
+                       </Row>
           </Form.Item>
 
           <Form.Item
@@ -482,7 +422,225 @@ const [classs, setClasss] = useState([]);
               <Input />
             </Form.Item>
           )}
-
+          {selectedRole === 2 && (
+            <>
+              <Form.Item
+                label="SubjectExpertise"
+                name="expertise"
+                rules={[
+                  { required: true, message: "Please select your expertise" },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  placeholder="Please select your expertise"
+                  style={{ width: "70%" }}
+                 
+                >
+                  <OptGroup
+                    label={<span style={{ color: "blue" }}>Subject List</span>}
+                  >
+                    <Option value="Mathematics">Mathematics</Option>
+                    <Option value="Science">Science</Option>
+                    <Option value="History">History</Option>
+                    <Option value="English">English</Option>
+                    <Option value="Urdu">Urdu</Option>
+                    <Option value="Physical">Physical</Option>
+                    <Option value="Chemistry">Chemistry</Option>
+                    <Option value="Biology">Biology</Option>
+                    <Option value="Geography">Geography</Option>
+                    <Option value="Computer">Computer</Option>
+                  </OptGroup>
+                  <OptGroup label="Language List">
+                    <Option value="Englishs">Englishs</Option>
+                    <Option value="Urdus">Urdus</Option>
+                    <Option value="Spanish">Spanish</Option>
+                    <Option value="French">French</Option>
+                    <Option value="German">German</Option>
+                    <Option value="Arabic">Arabic</Option>
+                    <Option value="Balochi">Balochi</Option>
+                    <Option value="Panjabi">Panjabi</Option>
+                    <Option value="Chinese">Chinese</Option>
+                    <Option value="Russian">Russian</Option>
+                  </OptGroup>
+                  <OptGroup label="Course related List">
+                    <Option value="Frontend">Frontend</Option>
+                    <Option value="Backend">Backend</Option>
+                    <Option value="Full Stack">Full Stack</Option>
+                    <Option value="Mobile Development">
+                      Mobile Development
+                    </Option>
+                    <Option value="Data Science">Data Science</Option>
+                    <Option value="DevOps">DevOps</Option>
+                    <Option value="Cloud Computing">Cloud Computing</Option>
+                    <Option value="Cyber Security">Cyber Security</Option>
+                    <Option value="Machine Learning">Machine Learning</Option>
+                    <Option value="Artificial Intelligence">
+                      Artificial Intelligence
+                    </Option>
+                    <Option value="Blockchain">Blockchain</Option>
+                    <Option value="Internet of Things">
+                      Internet of Things
+                    </Option>
+                    <Option value="Augmented Reality">Augmented Reality</Option>
+                    <Option value="Virtual Reality">Virtual Reality</Option>
+                    <Option value="Python">Python</Option>
+                    <Option value="Java">Java</Option>
+                    <Option value="JavaScript">JavaScript</Option>
+                    <Option value="C++">C++</Option>
+                    <Option value="C#">C#</Option>
+                    <Option value="PHP">PHP</Option>
+                    <Option value="React">React</Option>
+                    <Option value="Vue">Vue</Option>
+                    <Option value="Angular">Angular</Option>
+                    <Option value="Node.js">Node.js</Option>
+                    <Option value="Express.js">Express.js</Option>
+                    <Option value="MongoDB">MongoDB</Option>
+                    <Option value="PostgreSQL">PostgreSQL</Option>
+                  </OptGroup>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="ExperieanceOfTeaching"
+                name="teachingExperience"
+                rules={[
+                  { required: true, message: "please select expirence year" },
+                ]}
+              >
+                <Select
+                  placeholder="please select expirence year"
+                  style={{ height: "35px", width: "70%" }}
+                >
+                  <Option value="2 month">2 months</Option>
+                  <Option value="5 month">5 months</Option>
+                  <Option value="8 month">8 months</Option>
+                  <Option value="12 months">12 months</Option>
+                  <Option value="1 year">1 year</Option>
+                  <Option value="2 years">2 years</Option>
+                  <Option value="3 years">3 years</Option>
+                  <Option value="4 years">4 years</Option>
+                  <Option value="5 years">5 years</Option>
+                  <Option value="6 years">6 years</Option>
+                  <Option value="7 years">7 years</Option>
+                  <Option value="8 years">8 years</Option>
+                  <Option value="9 years">9 years</Option>
+                  <Option value="10+ years">10+ year</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="Digree"
+                name="degree"
+                rules={[
+                  {
+                    required: true,
+                    message: "please select your degree",
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  style={{ width: "70%" }}
+                  placeholder="please select your degree"
+                >
+                  <Option value="B.A">B.A</Option>
+                  <Option value="B.Sc">B.Sc</Option>
+                  <Option value="B.Comp">B.Comp</Option>
+                  <Option value="BBA">BBA</Option>
+                  <Option value="BCS">BCS</Option>
+                  <Option value="B.E">B.E</Option>
+                  <Option value="B.Tech">B.Tech</Option>
+                  <Option value="LL.B">LL.B</Option>
+                  <Option value="MBBS">MBBS</Option>
+                  <Option value="BDS">BDS</Option>
+                  <Option value="Pharm.D">Pharm.D</Option>
+                  <Option value="B.Ed">B.Ed</Option>
+                  <Option value="ADE">ADE</Option>
+                  <Option value="M.A">M.A</Option>
+                  <Option value="M.Sc">M.Sc</Option>
+                  <Option value="M.Comp">M.Comp</Option>
+                  <Option value="MBA">MBA</Option>
+                  <Option value="MCS">MCS</Option>
+                  <Option value="M.E">M.E</Option>
+                  <Option value="LL.M">LL.M</Option>
+                  <Option value="M.Ed">M.Ed</Option>
+                  <Option value="M.Phil">M.Phil</Option>
+                  <Option value="PH.D">Ph.D</Option>
+                  <Option value="MD">MD</Option>
+                  <Option value="Pharm.D (advanced)">Pharm.D (advanced)</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="From which city have you Graduated"
+                name="graduation"
+                rules={[
+                  { required: true, message: "please enter your graduation" },
+                ]}
+              >
+                <Select
+                  style={{ width: "70%", height: "35px" }}
+                  placeholder="please select in which city have your graduation"
+                  onChange={handleCityChange}
+                >
+                  {cities.map((city) => (
+                    <Option key={city} value={city}>
+                      {city}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="from which university have you graduated"
+                name="university"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      "please selest from which university have you graduated",
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  style={{ width: "70%" }}
+                  placeholder="please select from which university have you graduated"
+                
+                >
+                  {universities.map((universities) => (
+                    <Option key={universities} value={universities}>
+                      {universities}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="Student Id"
+                name="ids"
+                rules={[
+                  { required: true, message: "please enter your student id" },
+                ]}
+              >
+                <Input
+                  style={{ width: "70%" }}
+                  placeholder="please enter your student id"
+                />
+              </Form.Item>
+              <Form.Item
+                label="certification number"
+                name="certification"
+                rules={[
+                  {
+                    required: true,
+                    message: "please enter your certication number",
+                  },
+                ]}
+              >
+                <Input
+                  style={{ width: "70%" }}
+                  placeholder="please enter your certification number"
+                />
+              </Form.Item>
+            </>
+          )}
           {/* STUDENT */}
           {selectedRole === 4 && (
             <>

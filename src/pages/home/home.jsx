@@ -149,7 +149,8 @@ const Home = () => {
               }}
             />
           </Content>
-          <Footercomponent />
+         
+
         </>
       ),
     },
@@ -282,7 +283,7 @@ const Home = () => {
               education.
             </p>
           </Content>
-          <Footercomponent />
+       
         </>
       ),
     },
@@ -369,7 +370,7 @@ const Home = () => {
               </Form>
             </div>
           </Content>
-          <Footercomponent />
+        
         </>
       ),
     },
@@ -496,7 +497,7 @@ const Home = () => {
               </div>
             </div>
           </Content>
-          <Footercomponent />
+         
         </>
       ),
     },
@@ -598,7 +599,7 @@ const Home = () => {
               </div>
             </div>
           </Content>
-          <Footercomponent />
+         
         </>
       ),
     },
@@ -698,7 +699,7 @@ const Home = () => {
               </div>
             </div>
           </Content>
-          <Footercomponent />
+         
         </>
       ),
     },
@@ -771,7 +772,7 @@ const Home = () => {
               You want hand made code visit our site <a>Hand Made Code.com</a>
             </h1>
           </Card>
-          <Footercomponent />
+         
         </>
       ),
     },
@@ -826,6 +827,7 @@ const Home = () => {
           borderRadius: "8px",
         }}
       />
+       
     </>
   );
 };

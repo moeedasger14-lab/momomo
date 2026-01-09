@@ -121,24 +121,23 @@ const pending =
 
   const navigate = useNavigate();
   const columns = [
-    { title: "Teacher Name", dataIndex: "teachername", key: "teachername" },
-    { title: "Age", dataIndex: "age", key: "age" },
+    { title: "full Name", dataIndex: "fullName", key: "fullName" },
     { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Expert", dataIndex: "expert", key: "expert" },
+    { title: "Expert", dataIndex: "expertise", key: "expertise" },
     {
       title: "Experience of Teaching",
-      dataIndex: "experienceofteaching",
-      key: "experienceofteaching",
+      dataIndex: "teachingExperience",
+      key: "teachingExperience",
     },
     { title: "Degree", dataIndex: "degree", key: "degree" },
     { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "city", key: "city" },
+    { title: "City", dataIndex: "graduation", key: "graduation" },
     {
       title: "university graduated from",
-      dataIndex: "graduated",
-      key: "graduated",
+      dataIndex: "university",
+      key: "university",
     },
-    { title: "Student Id", dataIndex: "studentid", key: "studentid" },
+    { title: "Student Id", dataIndex: "ids", key: "ids" },
     {
       title: "Certification Number",
       dataIndex: "certification",
@@ -156,44 +155,7 @@ const pending =
     },
   ];
 
-  var column = [
-    { title: "Teacher Name", dataIndex: "teachername", key: "teachername" },
-    { title: "Age", dataIndex: "age", key: "age" },
-    { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Expert", dataIndex: "expert", key: "expert" },
-    {
-      title: "Experience of Teaching",
-      dataIndex: "experienceofteaching",
-      key: "experienceofteaching",
-    },
-    { title: "Degree", dataIndex: "degree", key: "degree" },
-    { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "city", key: "city" },
-    {
-      title: "university graduated from",
-      dataIndex: "graduated",
-      key: "graduated",
-    },
-    { title: "Student Id", dataIndex: "studentid", key: "studentid" },
-    {
-      title: "Certification Number",
-      dataIndex: "certification",
-      key: "certification",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Button
-          onClick={() => DeleteTeachersbyIds(record.id)}
-          type="dashed"
-          danger
-        >
-          Ban
-        </Button>
-      ),
-    },
-  ];
+ 
 
   var colum = [
     { title: "Student Name", dataIndex: "studentname", key: "studentname" },
@@ -514,24 +476,24 @@ const pending =
     localStorage.setItem("approvedMessages", JSON.stringify(filterData));
   };
   var column = [
-    { title: "Teacher Name", dataIndex: "teachername", key: "teachername" },
-    { title: "Age", dataIndex: "age", key: "age" },
+    { title: "Teacher Name", dataIndex: "fullName", key: "fullName" },
+   
     { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Expert", dataIndex: "expert", key: "expert" },
+    { title: "Expert", dataIndex: "expertise", key: "expertise" },
     {
       title: "Experience of Teaching",
-      dataIndex: "experienceofteaching",
-      key: "experienceofteaching",
+      dataIndex: "teachingExperience",
+      key: "teachingExperience",
     },
     { title: "Degree", dataIndex: "degree", key: "degree" },
     { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "city", key: "city" },
+    { title: "City", dataIndex: "gratuation", key: "gratuation" },
     {
       title: "university graduated from",
-      dataIndex: "graduated",
-      key: "graduated",
+      dataIndex: "university",
+      key: "university",
     },
-    { title: "Student Id", dataIndex: "studentid", key: "studentid" },
+    { title: "Student Id", dataIndex: "ids", key: "ids" },
     {
       title: "Certification Number",
       dataIndex: "certification",
@@ -718,7 +680,7 @@ const pending =
           >
             <Table
               dataSource={pendingTeachers}
-               
+               rowKey="id"
               scroll={{ x: 1400 }}
               bordered
               
@@ -740,6 +702,7 @@ const pending =
             }))}
             scroll={true}
             bordered
+            rowKey="id"
             sticky
             columns={column}
           />

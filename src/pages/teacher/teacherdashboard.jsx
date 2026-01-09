@@ -180,7 +180,7 @@ const Teacherdashboard = () => {
     { label: "1 months", value: "1 months" },
     { label: "3 weeks", value: "3 weeks" },
   ];
-  const signup = JSON.parse(localStorage.getItem("signupdata"));
+  const approvedTeacherSignupData = JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
   const columns = [
     {
       title: "Course Name",
@@ -370,10 +370,7 @@ const Teacherdashboard = () => {
                       { required: true, message: "Please select time range!" },
                     ]}
                     placeholder="please select course type"
-                    options={signup.expertise.map((item) => ({
-                      label: item,
-                      value: item,
-                    }))}
+                      options={[{ label: approvedTeacherSignupData.expertise, value: approvedTeacherSignupData.expertise }]}
                   />
                   <ProFormSelect
                     width="md"
@@ -463,7 +460,7 @@ const Teacherdashboard = () => {
                       { required: true, message: "Please select time range!" },
                     ]}
                     options={[
-                      { label: signup.fullName, value: signup.fullName },
+                      { label: approvedTeacherSignupData.fullName, value: approvedTeacherSignupData.fullName },
                     ]}
                   />
                   <ProFormSelect
@@ -484,7 +481,7 @@ const Teacherdashboard = () => {
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                    options={[{ label: signup.gender, value: signup.gender }]}
+                    options={[{ label: approvedTeacherSignupData.gender, value: approvedTeacherSignupData.gender }]}
                   />
                   <ProFormSelect
                     width="md"
@@ -496,8 +493,8 @@ const Teacherdashboard = () => {
                     ]}
                     options={[
                       {
-                        label: signup.teachingExperience,
-                        value: signup.teachingExperience,
+                        label: approvedTeacherSignupData.teachingExperience,
+                        value: approvedTeacherSignupData.teachingExperience,
                       },
                     ]}
                   />

@@ -1,11 +1,12 @@
-import { Modal, Form, Select, Input, Button, Row, Col, Radio, message } from 'antd';
+import { Modal, Card , Form, Select, Input, Button, Row, Col, Radio, message } from 'antd';
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-
+ 
 const SwitchAccountModal = ({ open, setOpen }) => {
+ 
     const navigate = useNavigate();
     const [form]= Form.useForm();
-    const {Option} =Select;
+    
     const [selectedRole, setSelectedRole] = React.useState(null);
 
 const [cities, setCities] = useState([]);
@@ -327,19 +328,37 @@ destroyOnHidden
           </Form.Item>
 
           {/* ROLE SELECTION */}
-          <Form.Item label="Who are you?">
-            <Row gutter={12}>
-              {roles.map((r) => (
-                <Col key={r.id}>
-                  <Button
-                    type={selectedRole === r.id ? "primary" : "default"}
+          <Form.Item label="Who are, you?">
+           <Row gutter={[24, 24]} justify="center">
+              {roles.map((role) => (
+                <Col xs={24} sm={12} md={8} lg={6} key={role.id}>
+                  <Card
+                    hoverable
+                    cover={
+                      <img
+                        alt={role.name}
+                        src={role.image}
+                        style={{ height: 150, objectFit: "cover" }}
+                      />
+                    }
                     onClick={() => {
-                      setSelectedRole(r.id);
-                      form.setFieldsValue({ role: r.id });
+                      setSelectedRole(role.id);
+                      form.setFieldsValue({ role: role.id });
+                    }}
+                    style={{
+                      borderColor:
+                        selectedRole === role.id ? "#1890ff" : "#f0f0f0",
+                      backgroundColor:
+                        selectedRole === role.id ? "#e6f7ff" : "#fff",
+                      cursor: "pointer",
+                      textAlign: "center",
                     }}
                   >
-                    {r.name}
-                  </Button>
+                    <Card.Meta
+                      title={role.name}
+                      description={role.description}
+                    />
+                  </Card>
                 </Col>
               ))}
             </Row>
@@ -350,11 +369,11 @@ destroyOnHidden
             label="Gender"
             rules={[{ required: true }]}
           >
-            <Radio.Group>
-              <Radio value="male">Male</Radio>
-              <Radio value="female">Female</Radio>
-              <Radio value="other">Other</Radio>
-            </Radio.Group>
+           <Select placeholder="Please select your gender">
+            <Select.Option key="Male" value="Male">Male</Select.Option>
+            <Select.Option key="woman" value="woman">woman</Select.Option>
+           
+           </Select>
           </Form.Item>
 
           <Form.Item
@@ -363,8 +382,8 @@ destroyOnHidden
             rules={[{ required: true }]}
           >
             <Select onChange={handleCountryChange}>
-              <Option value="Pakistan">Pakistan</Option>
-              <Option value="USA">USA</Option>
+              <Select.Option value="Pakistan">Pakistan</Select.Option>
+              <Select.Option value="USA">USA</Select.Option>
             </Select>
           </Form.Item>
 
@@ -388,9 +407,9 @@ destroyOnHidden
                 rules={[{ required: true }]}
               >
                 <Select onChange={(v) => handleWhereDoYouLive("read", v)}>
-                  <Option value="School">School</Option>
-                  <Option value="Collage">College</Option>
-                  <Option value="University">University</Option>
+                  <Select.Option value="School">School</Select.Option>
+                  <Select.Option value="Collage">College</Select.Option>
+                  <Select.Option value="University">University</Select.Option>
                 </Select>
               </Form.Item>
 
@@ -401,7 +420,7 @@ destroyOnHidden
               >
                 <Select onChange={(v) => handleWhereDoYouLive("live", v)}>
                   {cities.map((c) => (
-                    <Option key={c}>{c}</Option>
+                    <Select.Option key={c}>{c}</Select.Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -413,13 +432,231 @@ destroyOnHidden
               >
                 <Select>
                   {classs.map((c) => (
-                    <Option key={c}>{c}</Option>
+                    <Select.Option key={c}>{c}</Select.Option>
                   ))}
                 </Select>
               </Form.Item>
             </>
           )}
-
+{selectedRole === 2 && (
+            <>
+              <Form.Item
+                label="SubjectExpertise"
+                name="expertise"
+                rules={[
+                  { required: true, message: "Please select your expertise" },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  placeholder="Please select your expertise"
+                  style={{ width: "70%" }}
+                
+                >
+                  <Select.OptGroup
+                    label={<span style={{ color: "blue" }}>Subject List</span>}
+                  >
+                    <Select.Option value="Mathematics">Mathematics</Select.Option>
+                    <Select.Option value="Science">Science</Select.Option>
+                    <Select.Option value="History">History</Select.Option>
+                    <Select.Option value="English">English</Select.Option>
+                    <Select.Option value="Urdu">Urdu</Select.Option>
+                    <Select.Option value="Physical">Physical</Select.Option>
+                    <Select.Option value="Chemistry">Chemistry</Select.Option>
+                    <Select.Option value="Biology">Biology</Select.Option>
+                    <Select.Option value="Geography">Geography</Select.Option>
+                    <Select.Option value="Computer">Computer</Select.Option>
+                  </Select.OptGroup>
+                  <Select.OptGroup label="Language List">
+                    <Select.Option value="Englishs">Englishs</Select.Option>
+                    <Select.Option value="Urdus">Urdus</Select.Option>
+                    <Select.Option value="Spanish">Spanish</Select.Option>
+                    <Select.Option value="French">French</Select.Option>
+                    <Select.Option value="German">German</Select.Option>
+                    <Select.Option value="Arabic">Arabic</Select.Option>
+                    <Select.Option value="Balochi">Balochi</Select.Option>
+                    <Select.Option value="Panjabi">Panjabi</Select.Option>
+                    <Select.Option value="Chinese">Chinese</Select.Option>
+                    <Select.Option value="Russian">Russian</Select.Option>
+                  </Select.OptGroup>
+                  <Select.OptGroup label="Course related List">
+                    <Select.Option value="Frontend">Frontend</Select.Option>
+                    <Select.Option value="Backend">Backend</Select.Option>
+                    <Select.Option value="Full Stack">Full Stack</Select.Option>
+                    <Select.Option value="Mobile Development">
+                      Mobile Development
+                    </Select.Option>
+                    <Select.Option value="Data Science">Data Science</Select.Option>
+                    <Select.Option value="DevOps">DevOps</Select.Option>
+                    <Select.Option value="Cloud Computing">Cloud Computing</Select.Option>
+                    <Select.Option value="Cyber Security">Cyber Security</Select.Option>
+                    <Select.Option value="Machine Learning">Machine Learning</Select.Option>
+                    <Select.Option value="Artificial Intelligence">
+                      Artificial Intelligence
+                    </Select.Option>
+                    <Select.Option value="Blockchain">Blockchain</Select.Option>
+                    <Select.Option value="Internet of Things">
+                      Internet of Things
+                    </Select.Option>
+                    <Select.Option value="Augmented Reality">Augmented Reality</Select.Option>
+                    <Select.Option value="Virtual Reality">Virtual Reality</Select.Option>
+                    <Select.Option value="Python">Python</Select.Option>
+                    <Select.Option value="Java">Java</Select.Option>
+                    <Select.Option value="JavaScript">JavaScript</Select.Option>
+                    <Select.Option value="C++">C++</Select.Option>
+                    <Select.Option value="C#">C#</Select.Option>
+                    <Select.Option value="PHP">PHP</Select.Option>
+                    <Select.Option value="React">React</Select.Option>
+                    <Select.Option value="Vue">Vue</Select.Option>
+                    <Select.Option value="Angular">Angular</Select.Option>
+                    <Select.Option value="Node.js">Node.js</Select.Option>
+                    <Select.Option value="Express.js">Express.js</Select.Option>
+                    <Select.Option value="MongoDB">MongoDB</Select.Option>
+                    <Select.Option value="PostgreSQL">PostgreSQL</Select.Option>
+                  </Select.OptGroup>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="ExperieanceOfTeaching"
+                name="teachingExperience"
+                rules={[
+                  { required: true, message: "please select expirence year" },
+                ]}
+              >
+                <Select
+                  placeholder="please select expirence year"
+                  style={{ height: "35px", width: "70%" }}
+                >
+                  <Select.Option value="2 month">2 months</Select.Option>
+                  <Select.Option value="5 month">5 months</Select.Option>
+                  <Select.Option value="8 month">8 months</Select.Option>
+                  <Select.Option value="12 months">12 months</Select.Option>
+                  <Select.Option value="1 year">1 year</Select.Option>
+                  <Select.Option value="2 years">2 years</Select.Option>
+                  <Select.Option value="3 years">3 years</Select.Option>
+                  <Select.Option value="4 years">4 years</Select.Option>
+                  <Select.Option value="5 years">5 years</Select.Option>
+                  <Select.Option value="6 years">6 years</Select.Option>
+                  <Select.Option value="7 years">7 years</Select.Option>
+                  <Select.Option value="8 years">8 years</Select.Option>
+                  <Select.Option value="9 years">9 years</Select.Option>
+                  <Select.Option value="10+ years">10+ year</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="Digree"
+                name="degree"
+                rules={[
+                  {
+                    required: true,
+                    message: "please select your degree",
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  style={{ width: "70%" }}
+                  placeholder="please select your degree"
+                >
+                  <Select.Option value="B.A">B.A</Select.Option>
+                  <Select.Option value="B.Sc">B.Sc</Select.Option>
+                  <Select.Option value="B.Comp">B.Comp</Select.Option>
+                  <Select.Option value="BBA">BBA</Select.Option>
+                  <Select.Option value="BCS">BCS</Select.Option>
+                  <Select.Option value="B.E">B.E</Select.Option>
+                  <Select.Option value="B.Tech">B.Tech</Select.Option>
+                  <Select.Option value="LL.B">LL.B</Select.Option>
+                  <Select.Option value="MBBS">MBBS</Select.Option>
+                  <Select.Option value="BDS">BDS</Select.Option>
+                  <Select.Option value="Pharm.D">Pharm.D</Select.Option>
+                  <Select.Option value="B.Ed">B.Ed</Select.Option>
+                  <Select.Option value="ADE">ADE</Select.Option>
+                  <Select.Option value="M.A">M.A</Select.Option>
+                  <Select.Option value="M.Sc">M.Sc</Select.Option>
+                  <Select.Option value="M.Comp">M.Comp</Select.Option>
+                  <Select.Option value="MBA">MBA</Select.Option>
+                  <Select.Option value="MCS">MCS</Select.Option>
+                  <Select.Option value="M.E">M.E</Select.Option>
+                  <Select.Option value="LL.M">LL.M</Select.Option>
+                  <Select.Option value="M.Ed">M.Ed</Select.Option>
+                  <Select.Option value="M.Phil">M.Phil</Select.Option>
+                  <Select.Option value="PH.D">Ph.D</Select.Option>
+                  <Select.Option value="MD">MD</Select.Option>
+                  <Select.Option value="Pharm.D (advanced)">Pharm.D (advanced)</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="From which city have you Graduated"
+                name="graduation"
+                rules={[
+                  { required: true, message: "please enter your graduation" },
+                ]}
+              >
+                <Select
+                  style={{ width: "70%", height: "35px" }}
+                  placeholder="please select in which city have your graduation"
+                  onChange={handleCityChange}
+                >
+                  {cities.map((city) => (
+                    <Select.Option key={city} value={city}>
+                      {city}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="from which university have you graduated"
+                name="university"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      "please selest from which university have you graduated",
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  style={{ width: "70%" }}
+                  placeholder="please select from which university have you graduated"
+                
+                >
+                  {universities.map((universities) => (
+                    <Select.Option key={universities} value={universities}>
+                      {universities}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="Student Id"
+                name="ids"
+                rules={[
+                  { required: true, message: "please enter your student id" },
+                ]}
+              >
+                <Input
+                  style={{ width: "70%" }}
+                  placeholder="please enter your student id"
+                />
+              </Form.Item>
+              <Form.Item
+                label="certification number"
+                name="certification"
+                rules={[
+                  {
+                    required: true,
+                    message: "please enter your certication number",
+                  },
+                ]}
+              >
+                <Input
+                  style={{ width: "70%" }}
+                  placeholder="please enter your certification number"
+                />
+              </Form.Item>
+            </>
+          )}
           <Button block type="primary" htmlType="submit">
             Submit
           </Button>
