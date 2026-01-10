@@ -14,30 +14,48 @@ const [cities, setCities] = useState([]);
  const [school, setSchool] = useState([]);
   const [read, setRead] = useState("");
   const [live, setLive] = useState("");
-
+ const [classs, setClasss] = useState([]);
  const admin = JSON.parse(localStorage.getItem("currentUser"));
   const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
 
- const handleSubmit = (values) => {
-    const pending =
-      JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
+const handleSubmit = (values) => {
+    try {
+      const role = Number(values.role);
+      const newUser = {
+        id: Date.now(),
+        ...values,
+        role,
+        status: role === 1 ? "approved" : role === 2 ? "pending" : "pending",
+        createdByAdmin: true,
+      };
 
-    // 🔹 CHANGE: admin-created teacher
-    pending.push({
-      id: Date.now(),
-      ...values,
-      role: 2,
-      status: "pending",
-      createdByAdmin: true,
-    });
+      // Ensure admin/header can see this account
+      const signup = JSON.parse(localStorage.getItem("signupdata")) || [];
+      signup.push(newUser);
+      localStorage.setItem("signupdata", JSON.stringify(signup));
 
-    localStorage.setItem(
-      "pendingTeacherSignupData",
-      JSON.stringify(pending)
-    );
+      if (role === 2) {
+        const pending = JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
+        pending.push(newUser);
+        localStorage.setItem("pendingTeacherSignupData", JSON.stringify(pending));
+        message.success("Teacher created and sent for approval");
+      } else if (role === 4) {
+        const students = JSON.parse(localStorage.getItem("Students")) || [];
+        students.push(newUser);
+        localStorage.setItem("Students", JSON.stringify(students));
+        message.success("Student created");
+      } else {
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        users.push(newUser);
+        localStorage.setItem("users", JSON.stringify(users));
+        message.success("Account created");
+      }
 
-    message.success("Teacher created and sent for approval");
-    setOpen(false);
+      setOpen(false);
+    } catch (e) {
+      console.error(e);
+      message.error("Failed to create account");
+    }
   };
 
 const roles = [
