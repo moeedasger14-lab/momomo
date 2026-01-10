@@ -23,18 +23,12 @@ import {
 } from "@ant-design/icons";
 const { Option, OptGroup } = Select;
 const Admindashboard = () => {
-  const getAllStudents = JSON.parse(localStorage.getItem("Students"));
+  
   const getAllTeachers = JSON.parse(localStorage.getItem("teachers"));
   const [teachers, setTeachers] = useState(getAllTeachers || []);
-  const [students, setStudents] = useState(getAllStudents || []);
  
-  const [pendingTeachers, setPendingTeachers] = useState(
-  JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || []
-);
-
-const approvedTeachers =
-  JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
-
+ 
+  
    const user = JSON.parse(localStorage.getItem("currentUser"));
   const [approvedStudents, setApprovedStudents] = useState(
     JSON.parse(localStorage.getItem("approvedStudents")) || []
@@ -45,6 +39,51 @@ const approvedTeachers =
   const [messages, setMessages] = useState(
     JSON.parse(localStorage.getItem("messages")) || []
   );
+    const [students, setStudents] = useState(
+    JSON.parse(localStorage.getItem("Students")) || []
+  );
+
+  const [approvedTeachers, setApprovedTeachers] = useState(
+    JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || []
+  );
+
+  const [pendingTeachers, setPendingTeachers] = useState(
+    JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || []
+  );
+
+  // 🔹 APPROVE TEACHER
+  const approveTeacher = (teacher) => {
+    const updatedPending = pendingTeachers.filter(
+      (t) => t.id !== teacher.id
+    );
+    const updatedApproved = [
+      ...approvedTeachers,
+      { ...teacher, status: "approved" },
+    ];
+
+    setPendingTeachers(updatedPending);
+    setApprovedTeachers(updatedApproved);
+
+    localStorage.setItem(
+      "pendingTeacherSignupData",
+      JSON.stringify(updatedPending)
+    );
+    localStorage.setItem(
+      "approvedTeacherSignupData",
+      JSON.stringify(updatedApproved)
+    );
+
+    message.success("Teacher approved");
+  };
+
+  // 🔹 DELETE STUDENT
+  const deleteStudent = (id) => {
+    const filtered = students.filter((s) => s.id !== id);
+    setStudents(filtered);
+    localStorage.setItem("Students", JSON.stringify(filtered));
+  };
+
+ 
   const [school, setSchool] = useState([]);
   const [cities, setCities] = useState([]);
   const [universities, setUniversities] = useState([]);
@@ -62,31 +101,10 @@ const pending =
   const approved =
     JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
 
-  const approveTeacher = (teacher) => {
-    const newPending = pending.filter((t) => t.id !== teacher.id);
-    const newApproved = [...approved, { ...teacher, status: "approved" }];
-
-    localStorage.setItem(
-      "pendingTeacherSignupData",
-      JSON.stringify(newPending)
-    );
-    localStorage.setItem(
-      "approvedTeacherSignupData",
-      JSON.stringify(newApproved)
-    );
+ 
 
     // 🔹 CHANGE: update logged-in teacher
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser?.id === teacher.id) {
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({ ...currentUser, status: "approved" })
-      );
-    }
-
-    message.success("Teacher approved");
-    window.location.reload();
-  };
 
   const handleCountryChange = (value) => {
     if (value === "Pakistan") {
@@ -168,23 +186,16 @@ const pending =
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <>
+        
           <Button
-            onClick={() => DeleteStudentsbyId(record.id)}
+            onClick={() => deleteStudent(record.id)}
             type="dashed"
             danger
             style={{ marginRight: 8 }}
           >
             Reject
           </Button>
-          <Button
-            onClick={() => handleApproves(record)}
-            type="dashed"
-            style={{ borderColor: "green" }}
-          >
-            Approve
-          </Button>
-        </>
+          
       ),
     },
   ];
@@ -507,73 +518,8 @@ const pending =
       ),
     },
   ];
-  var colum = [
-    { title: "Student Name", dataIndex: "studentname", key: "studentname" },
-    { title: "Age", dataIndex: "age", key: "age" },
-    { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "city", key: "city" },
-    { title: "Where do you read", dataIndex: "read", key: "read" },
-    {
-      title: "In which school or university",
-      dataIndex: "readss",
-      key: "readss",
-    },
-    { title: "Class Level", dataIndex: "class", key: "class" },
-    { title: "Student id", dataIndex: "ids", key: "ids" },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <>
-          <Button
-            onClick={() => DeleteStudentsbyId(record.id)}
-            style={{ marginBottom: "5px" }}
-            variant="dashed"
-            color="volcano"
-          >
-            Reject
-          </Button>
-          <Button
-            onClick={() => handleApproves(record)}
-            variant="dashed"
-            color="green"
-          >
-            Approve
-          </Button>
-        </>
-      ),
-    },
-  ];
-  var colm = [
-    { title: "Student Name", dataIndex: "studentname", key: "studentname" },
-    { title: "Age", dataIndex: "age", key: "age" },
-    { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "city", key: "city" },
-    { title: "Where do you read", dataIndex: "read", key: "read" },
-    {
-      title: "In which school or university",
-      dataIndex: "readss",
-      key: "readss",
-    },
-    { title: "Class Level", dataIndex: "class", key: "class" },
-    { title: "Student id", dataIndex: "ids", key: "ids" },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <Button
-          onClick={() => DeletestudentsbyIds(record.id)}
-          style={{ marginBottom: "5px" }}
-          variant="dashed"
-          color="volcano"
-        >
-          Ban
-        </Button>
-      ),
-    },
-  ];
+  
+ 
 
   var cols = [
     { title: "Name", dataIndex: "name", key: "name" },

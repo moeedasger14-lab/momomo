@@ -25,97 +25,40 @@ const Heder = () => {
   const [openSwitchModal, setOpenSwitchModal] = useState(false);
   const allUsers = JSON.parse(localStorage.getItem("signupdata")) || [];
       const user = JSON.parse(localStorage.getItem("currentUser"));
-  const parentAdmin =
-  user?.createdBy
-    ? allUsers.find((u) => u.id === user.createdBy && u.role === 1)
-    : null;
-
-const adminAccounts = Array.isArray(allUsers)
-  ? allUsers.filter((u) => u.createdBy === user?.id)
-  : [];
   useEffect(() => {
-    // allow public pages
-    if (
-      location.pathname === "/login" ||
-      location.pathname === "/signup"
-    ) {
-      return;
-    }
-
-    if (!user) {
-      navigate("/login", { replace: true });
-    }
+    if (["/login", "/signup"].includes(location.pathname)) return;
+    if (!user) navigate("/login", { replace: true });
   }, [user, location.pathname, navigate]);
-const pending =
-    JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
-  const approved =
-    JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
 
-// 🔹 accounts created by this admin
+  // 🔹 Admin-created accounts
+  const adminCreatedAccounts = allUsers.filter(
+    (u) => u.createdBy === user?.id
+  );
 
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-// 🔹 switch account logic
- const switchableTeachers = [...pending, ...approved];
+  // Accounts that this admin can switch into (alias for clarity)
+  const switchableTeachers = adminCreatedAccounts;
 
+  // Parent admin (if admin had previously switched to another account)
+  const parentAdmin = JSON.parse(localStorage.getItem("previousUser")) || null;
+
+  // 🔹 Switch logic
   const switchAccount = (acc) => {
-    const existing = JSON.parse(localStorage.getItem("currentUser"));
-    if (existing) {
-      localStorage.setItem("previousUser", JSON.stringify(existing));
-    }
+    localStorage.setItem("previousUser", JSON.stringify(user));
     localStorage.setItem("currentUser", JSON.stringify(acc));
     message.success(`Switched to ${acc.fullName}`);
     window.location.reload();
   };
 
-// Consolidated switch-back handler — no messages during render
-const switchBackToAdmin = () => {
-  const previousUser = JSON.parse(localStorage.getItem("previousUser"));
-  if (previousUser) {
-    localStorage.setItem("currentUser", JSON.stringify(previousUser));
-    localStorage.removeItem("previousUser");
-    message.success("Switched back successfully");
-    window.location.reload();
-    return;
-  }
-
-  if (!parentAdmin) {
-    message.error("Admin account not found");
-    return;
-  }
-
-  localStorage.setItem("currentUser", JSON.stringify(parentAdmin));
-  message.success(`Switched back to Admin: ${parentAdmin.fullName}`);
-  window.location.reload();
-};
- 
- 
-   
- 
-  
-const handleDeleteAccount = () => {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  if (!user) return;
-
-  Modal.confirm({
-    title: "Delete Account",
-    content: "This action cannot be undone. Are you sure?",
-    okType: "danger",
-    onOk: () => {
-      const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
-      const updated = signups.filter(u => u.email !== user.email);
-
-      localStorage.setItem("signupdata", JSON.stringify(updated));
-      localStorage.removeItem("currentUser");
+  const switchBackToAdmin = () => {
+    const prev = JSON.parse(localStorage.getItem("previousUser"));
+    if (prev) {
+      localStorage.setItem("currentUser", JSON.stringify(prev));
       localStorage.removeItem("previousUser");
+      window.location.reload();
+    }
+  };
 
-      message.success("Account deleted successfully");
-      navigate("/login");
-    },
-  });
-};
-
-// Delete an account by id (used in switch list). Removes from pending/approved lists and signupdata.
-const deleteAccountById = (id) => {
+  const deleteAccountById = (id) => {
   Modal.confirm({
     title: "Delete Account",
     content: "This will permanently delete this account. Continue?",
@@ -185,6 +128,19 @@ const deleteAccountById = (id) => {
 };
 
 
+  // 🔹 Delete account everywhere
+
+
+
+
+ 
+   
+ 
+  
+
+// Delete an account by id (used in switch list). Removes from pending/approved lists and signupdata.
+
+
 const logout = () => {
     const userToRemove = JSON.parse(localStorage.getItem("currentUser"));
     if (userToRemove) {
@@ -240,28 +196,19 @@ const logout = () => {
       key: "switch",
       label: "Switch Account",
       children: [
-        ...switchableTeachers.map((acc) => ({
+        ...adminCreatedAccounts.map((acc) => ({
           key: acc.id,
           label: (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span
-                onClick={(e) => {
-                  e.stopPropagation();
-                  switchAccount(acc);
-                }}
-                style={{ cursor: "pointer" }}
-              >
-                {acc.fullName} ({acc.status})
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span onClick={() => switchAccount(acc)}>
+                {acc.fullName} ({acc.role === 2 ? "Teacher" : "Student"})
               </span>
-              <a
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteAccountById(acc.id);
-                }}
-                style={{ color: "red", marginLeft: 8 }}
+              <span
+                style={{ color: "red" }}
+                onClick={() => deleteAccountById(acc.id)}
               >
                 Delete
-              </a>
+              </span>
             </div>
           ),
         })),
@@ -269,16 +216,17 @@ const logout = () => {
         {
           key: "create",
           label: (
-            <span onClick={()=>setOpenSwitchModal(true)}>
-              <PlusOutlined /> Create Teacher
+            <span onClick={() => setOpenSwitchModal(true)}>
+              <PlusOutlined /> Create Account
             </span>
           ),
         },
-        
       ],
     },
+  ];
+
     
-];
+
 
 
     const teacherMenu = [
@@ -421,7 +369,7 @@ const logout = () => {
   <Button
   className="btn"
     shape="circle"
-    style={{ height: 35, width: 35, border: "1px solid black" }}
+    style={{ height: 35, width: 35, border: "1px solid black", marginLeft: "10px" }}
     icon={<UserAddOutlined />}
   />
 </Dropdown>
