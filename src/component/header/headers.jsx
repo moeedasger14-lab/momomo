@@ -24,12 +24,12 @@ const Heder = () => {
    const navigate = useNavigate();
   const [openSwitchModal, setOpenSwitchModal] = useState(false);
   const allUsers = JSON.parse(localStorage.getItem("signupdata")) || [];
-      
+      const user = JSON.parse(localStorage.getItem("currentUser"));
   const parentAdmin =
   user?.createdBy
     ? allUsers.find((u) => u.id === user.createdBy && u.role === 1)
     : null;
-const user = JSON.parse(localStorage.getItem("currentUser"));
+
 const adminAccounts = Array.isArray(allUsers)
   ? allUsers.filter((u) => u.createdBy === user?.id)
   : [];
@@ -149,9 +149,8 @@ const handleDeleteAccount = () => {
             </span>
           ),
         },
-      ],
-    },
-     {
+         { type: "divider" },
+          {
     key: "delete",
     label: (
       <span style={{ color: "red" }} onClick={handleDeleteAccount}>
@@ -159,6 +158,9 @@ const handleDeleteAccount = () => {
       </span>
     ),
   },
+      ],
+    },
+    
 ];
 
 
@@ -230,12 +232,7 @@ const handleDeleteAccount = () => {
 
     };
     
-    
-  useEffect(() => {
-    if (!user) {
-      navigate("/login", { replace: true });
-    }
-  }, [user, navigate]);
+ 
 
   const logout = () => {
     localStorage.removeItem("currentUser");
