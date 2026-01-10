@@ -269,6 +269,19 @@ const [classs, setClasss] = useState([]);
     const handleSignup = (values) => {
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
+    const email = (values.email || "").trim().toLowerCase();
+    const name = (values.fullName || "").trim().toLowerCase();
+
+    if (users.some((u) => (u.email || "").trim().toLowerCase() === email)) {
+      message.error("Email already in use");
+      return;
+    }
+
+    if (users.some((u) => (u.fullName || "").trim().toLowerCase() === name)) {
+      message.error("Full name already registered");
+      return;
+    }
+
     const newUser = {
       id: Date.now(),
       ...values,

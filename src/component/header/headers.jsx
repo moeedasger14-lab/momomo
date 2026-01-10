@@ -54,21 +54,31 @@ const pending =
 // 🔹 accounts created by this admin
 
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-if (currentUser) {
-  localStorage.setItem("previousUser", JSON.stringify(currentUser));
-}
 // 🔹 switch account logic
  const switchableTeachers = [...pending, ...approved];
 
   const switchAccount = (acc) => {
+    const existing = JSON.parse(localStorage.getItem("currentUser"));
+    if (existing) {
+      localStorage.setItem("previousUser", JSON.stringify(existing));
+    }
     localStorage.setItem("currentUser", JSON.stringify(acc));
     message.success(`Switched to ${acc.fullName}`);
     window.location.reload();
   };
 
+// Consolidated switch-back handler — no messages during render
 const switchBackToAdmin = () => {
- if (!parentAdmin) {
+  const previousUser = JSON.parse(localStorage.getItem("previousUser"));
+  if (previousUser) {
+    localStorage.setItem("currentUser", JSON.stringify(previousUser));
+    localStorage.removeItem("previousUser");
+    message.success("Switched back successfully");
+    window.location.reload();
+    return;
+  }
+
+  if (!parentAdmin) {
     message.error("Admin account not found");
     return;
   }
@@ -77,18 +87,6 @@ const switchBackToAdmin = () => {
   message.success(`Switched back to Admin: ${parentAdmin.fullName}`);
   window.location.reload();
 };
-   
- const previousUser = JSON.parse(localStorage.getItem("previousUser"));
-  if (!previousUser) {
-    message.warning("No previous account to switch back to");
-    return;
-  }
-
-  localStorage.setItem("currentUser", JSON.stringify(previousUser));
-  localStorage.removeItem("previousUser");
-
-  message.success("Switched back successfully");
-  navigate("/home");
  
  
    
@@ -116,8 +114,115 @@ const handleDeleteAccount = () => {
   });
 };
 
+// Delete an account by id (used in switch list). Removes from pending/approved lists and signupdata.
+const deleteAccountById = (id) => {
+  Modal.confirm({
+    title: "Delete Account",
+    content: "This will permanently delete this account. Continue?",
+    okType: "danger",
+    onOk: () => {
+        try {
+          const pending = JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
+          const approved = JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
+          const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
+          const courses = JSON.parse(localStorage.getItem("Courses")) || [];
+          const messagesArr = JSON.parse(localStorage.getItem("messages")) || [];
+          const teachers = JSON.parse(localStorage.getItem("teachers")) || [];
+          const students = JSON.parse(localStorage.getItem("Students")) || [];
+
+          const newPending = pending.filter((u) => u.id !== id);
+          const newApproved = approved.filter((u) => u.id !== id);
+          const newSignups = signups.filter((u) => u.id !== id);
+
+          // remove courses created by this teacher (match by teachernames or teacherId)
+          const newCourses = courses.filter((c) => {
+            if (!c) return true;
+            const nameMatch = c.teachernames && c.teachernames === (approved.find(a=>a.id===id)?.fullName || signups.find(s=>s.id===id)?.fullName);
+            const teacherIdMatch = c.teacherId && c.teacherId === id;
+            return !(nameMatch || teacherIdMatch);
+          });
+
+          // remove messages from this user (match email or name)
+          const acc = signups.find((s) => s.id === id) || approved.find((a) => a.id === id) || {};
+          const newMessages = messagesArr.filter((m) => {
+            if (!m) return true;
+            const emailMatch = acc.email && m.emails === acc.email;
+            const nameMatch = acc.fullName && (m.name === acc.fullName || m.fullName === acc.fullName);
+            return !(emailMatch || nameMatch);
+          });
+
+          const newTeachers = teachers.filter((t) => t.id !== id && t.email !== (acc.email || ""));
+          const newStudents = students.filter((s) => s.id !== id && s.email !== (acc.email || ""));
+
+          localStorage.setItem("pendingTeacherSignupData", JSON.stringify(newPending));
+          localStorage.setItem("approvedTeacherSignupData", JSON.stringify(newApproved));
+          localStorage.setItem("signupdata", JSON.stringify(newSignups));
+          localStorage.setItem("Courses", JSON.stringify(newCourses));
+          localStorage.setItem("messages", JSON.stringify(newMessages));
+          localStorage.setItem("teachers", JSON.stringify(newTeachers));
+          localStorage.setItem("Students", JSON.stringify(newStudents));
+
+          // If the deleted account is the current user, switch back to parent admin if available
+          const current = JSON.parse(localStorage.getItem("currentUser"));
+          if (current && current.id === id) {
+            if (parentAdmin) {
+              localStorage.setItem("currentUser", JSON.stringify(parentAdmin));
+              message.success("Deleted and switched back to admin");
+              window.location.reload();
+              return;
+            }
+            localStorage.removeItem("currentUser");
+          }
+
+          message.success("Account and related data deleted successfully");
+          window.location.reload();
+        } catch (e) {
+          console.error(e);
+          message.error("Failed to delete account");
+        }
+    },
+  });
+};
 
 
+const logout = () => {
+    const userToRemove = JSON.parse(localStorage.getItem("currentUser"));
+    if (userToRemove) {
+      const keysToClean = [
+        "signupdata",
+        "pendingTeacherSignupData",
+        "approvedTeacherSignupData",
+        "Courses",
+        "messages",
+        "teachers",
+        "Students",
+        "users",
+        "logindata",
+      ];
+
+      keysToClean.forEach((key) => {
+        try {
+          const arr = JSON.parse(localStorage.getItem(key) || "[]");
+          if (!Array.isArray(arr)) return;
+          const filtered = arr.filter((item) => {
+            if (!item) return true;
+            const idMatch = item.id && userToRemove.id && item.id === userToRemove.id;
+            const emailMatch = item.email && userToRemove.email && item.email === userToRemove.email;
+            const nameMatch = (item.fullName === userToRemove.fullName) || (item.fullname === userToRemove.fullName) || (item.name === userToRemove.fullName);
+            return !(idMatch || emailMatch || nameMatch);
+          });
+          localStorage.setItem(key, JSON.stringify(filtered));
+        } catch (e) {
+          // ignore parse errors
+        }
+      });
+    }
+
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("previousUser");
+    message.success("Logged out and related data removed");
+    navigate("/signup");
+  };
 
 
 
@@ -137,8 +242,28 @@ const handleDeleteAccount = () => {
       children: [
         ...switchableTeachers.map((acc) => ({
           key: acc.id,
-          label: `${acc.fullName} (${acc.status})`,
-          onClick: () => switchAccount(acc),
+          label: (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  switchAccount(acc);
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                {acc.fullName} ({acc.status})
+              </span>
+              <a
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteAccountById(acc.id);
+                }}
+                style={{ color: "red", marginLeft: 8 }}
+              >
+                Delete
+              </a>
+            </div>
+          ),
         })),
         { type: "divider" },
         {
@@ -149,15 +274,7 @@ const handleDeleteAccount = () => {
             </span>
           ),
         },
-         { type: "divider" },
-          {
-    key: "delete",
-    label: (
-      <span style={{ color: "red" }} onClick={handleDeleteAccount}>
-        Delete Account
-      </span>
-    ),
-  },
+        
       ],
     },
     
@@ -234,10 +351,7 @@ const handleDeleteAccount = () => {
     
  
 
-  const logout = () => {
-    localStorage.removeItem("currentUser");
-    navigate("/login");
-  };
+  
 
 
 
