@@ -22,7 +22,7 @@ const Signup = () => {
         return Array.isArray(raw) ? raw : raw ? [raw] : [];
       });
 
-
+const API = import.meta.env.VITE_API_URL;
   const [selectedRole, setSelectedRole] = useState(null);
 const [classs, setClasss] = useState([]);
   const [form] = Form.useForm();
@@ -242,88 +242,65 @@ const [classs, setClasss] = useState([]);
    
   const roles = [
     {
-      id: 1,
+      id: "admin",
       name: "Admin",
       description: "Full access to all features",
       image: "/images/human.png",
     },
     {
-      id: 2,
+      id: "teacher",
       name: "Teacher",
       description: "can manage courses and students",
       image: "/images/chart.png",
     },
+   
     {
-      id: 3,
-      name: "Viewer",
-      description: "Read-only access",
-      image: "/images/accountply.jpg",
-    },
-    {
-      id: 4,
+      id: "student",
       name: "Student",
       description: "can access learning materials",
       image: "/images/graduation.png",
     },
   ];
-
-    const handleSignup = (values) => {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const email = (values.email || "").trim().toLowerCase();
-    const name = (values.fullName || "").trim().toLowerCase();
-    const role = Number(values.role);
-
-    if (users.some((u) => (u.email || "").trim().toLowerCase() === email)) {
-      message.error("Email already in use");
-      return;
-    }
-
-    if (users.some((u) => (u.fullName || "").trim().toLowerCase() === name)) {
-      message.error("Full name already registered");
-      return;
-    }
-
-    const newUser = {
-      id: Date.now(),
-      ...values,
-      role,
-      status: role === 1 ? "approved" : "pending",
-    };
-
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-
-    // Auto tables
-    if (role === 2) {
-      const teachers = JSON.parse(localStorage.getItem("teachers")) || [];
-      teachers.push(newUser);
-      localStorage.setItem("teachers", JSON.stringify(teachers));
-
-      // also add to pending list for admin approval
-      const pending = JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
-      pending.push(newUser);
-      localStorage.setItem("pendingTeacherSignupData", JSON.stringify(pending));
-    }
-
-    if (role === 4) {
-      // write to both keys so admin and other parts of app see the signup
-      const studentsLower = JSON.parse(localStorage.getItem("students")) || [];
-      studentsLower.push(newUser);
-      localStorage.setItem("students", JSON.stringify(studentsLower));
-
-      const studentsUpper = JSON.parse(localStorage.getItem("Students")) || [];
-      studentsUpper.push(newUser);
-      localStorage.setItem("Students", JSON.stringify(studentsUpper));
-    }
-
-    message.success(
-      values.role === 1
-        ? "Admin created"
-        : "Signup successful. Await admin approval"
+const handleSignup = async (values) => {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/signup`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values)
+      }
     );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      message.error(data.message || "Signup failed");
+      return;
+    }
+
+    message.success(data.message);
     navigate("/login");
-  };
+  } catch (err) {
+    console.error("FETCH ERROR:", err);
+    message.error("Server not reachable");
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
      <div style={{ display: "flex", justifyContent: "center" }}>
       <Card title="Signup" style={{ width: "80%" }}>
@@ -362,13 +339,7 @@ const [classs, setClasss] = useState([]);
             <Input.Password autoComplete="new-password" />
           </Form.Item>
 
-          <Form.Item
-            name="confirmPassword"
-            label="Confirm Password"
-            rules={[{ required: true }]}
-          >
-            <Input.Password autoComplete="new-password" />
-          </Form.Item>
+        
 
           <Form.Item
             name="phone"
@@ -380,40 +351,40 @@ const [classs, setClasss] = useState([]);
 
           {/* ROLE SELECTION */}
           <Form.Item label="Who are you?">
-            <Row gutter={[24, 24]} justify="center">
-                         {roles.map((role) => (
-                           <Col xs={24} sm={12} md={8} lg={6} key={role.id}>
-                             <Card
-                               hoverable
-                               cover={
-                                 <img
-                                   alt={role.name}
-                                   src={role.image}
-                                   style={{ height: 150, objectFit: "cover" }}
-                                 />
-                               }
-                               onClick={() => {
-                                 setSelectedRole(role.id);
-                                 form.setFieldsValue({ role: role.id });
-                               }}
-                               style={{
-                                 borderColor:
-                                   selectedRole === role.id ? "#1890ff" : "#f0f0f0",
-                                 backgroundColor:
-                                   selectedRole === role.id ? "#e6f7ff" : "#fff",
-                                 cursor: "pointer",
-                                 textAlign: "center",
-                               }}
-                             >
-                               <Card.Meta
-                                 title={role.name}
-                                 description={role.description}
-                               />
-                             </Card>
-                           </Col>
-                         ))}
-                       </Row>
-          </Form.Item>
+  <Row gutter={[24, 24]} justify="center">
+    {roles.map((role) => (
+      <Col xs={24} sm={12} md={8} lg={6} key={role.id}>
+        <Card
+          hoverable
+          cover={
+            <img
+              alt={role.name}
+              src={role.image}
+              style={{ height: 150, objectFit: "cover" }}
+            />
+          }
+          onClick={() => {
+            setSelectedRole(role.id);          // "admin" | "teacher" | "student"
+            form.setFieldsValue({ role: role.id });
+          }}
+          style={{
+            borderColor:
+              selectedRole === role.id ? "#1890ff" : "#f0f0f0",
+            backgroundColor:
+              selectedRole === role.id ? "#e6f7ff" : "#fff",
+            cursor: "pointer",
+            textAlign: "center",
+          }}
+        >
+          <Card.Meta
+            title={role.name}
+            description={role.description}
+          />
+        </Card>
+      </Col>
+    ))}
+  </Row>
+</Form.Item>
 
           <Form.Item
             name="gender"
@@ -439,7 +410,7 @@ const [classs, setClasss] = useState([]);
           </Form.Item>
 
           {/* ADMIN */}
-          {selectedRole === 1 && (
+          {selectedRole === "admin" && (
             <Form.Item
               name="adminVerify"
               label="Admin Verification Code"
@@ -448,7 +419,7 @@ const [classs, setClasss] = useState([]);
               <Input />
             </Form.Item>
           )}
-          {selectedRole === 2 && (
+          {selectedRole === "teacher" && (
             <>
               <Form.Item
                 label="SubjectExpertise"
@@ -668,7 +639,7 @@ const [classs, setClasss] = useState([]);
             </>
           )}
           {/* STUDENT */}
-          {selectedRole === 4 && (
+          {selectedRole === "student" && (
             <>
               <Form.Item
                 name="read"
