@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 const Login = () => { 
     const navigate = useNavigate();
  
-     const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
+    const _rawSignups = JSON.parse(localStorage.getItem("signupdata"));
+    const signups = Array.isArray(_rawSignups) ? _rawSignups : _rawSignups ? [_rawSignups] : [];
   const logins = JSON.parse(localStorage.getItem("logindata")) || [];
 
 
@@ -28,9 +29,10 @@ const Login = () => {
       return;
     }
 
-    if (user.role === 1) navigate("/admin");
-    if (user.role === 2) navigate("/teacherdashboard");
-    if (user.role === 4) navigate("/studentdashboard");
+    const role = Number(user.role);
+    if (role === 1) navigate("/admin");
+    if (role === 2) navigate("/teacherdashboard");
+    if (role === 4) navigate("/studentdashboard");
   };
 
 

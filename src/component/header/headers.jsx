@@ -23,8 +23,14 @@ const { Header } = Layout;
 const Heder = () => {
    const navigate = useNavigate();
   const [openSwitchModal, setOpenSwitchModal] = useState(false);
-  const allUsers = JSON.parse(localStorage.getItem("signupdata")) || [];
+  const _rawSignups = JSON.parse(localStorage.getItem("signupdata"));
+  const allUsers = Array.isArray(_rawSignups)
+    ? _rawSignups
+    : _rawSignups
+    ? [_rawSignups]
+    : [];
       const user = JSON.parse(localStorage.getItem("currentUser"));
+  const userRole = Number(user?.role || -1);
   useEffect(() => {
     if (["/login", "/signup"].includes(location.pathname)) return;
     if (!user) navigate("/login", { replace: true });
@@ -32,7 +38,7 @@ const Heder = () => {
 
   // 🔹 Admin-created accounts
   const adminCreatedAccounts = allUsers.filter(
-    (u) => u.createdBy === user?.id
+    (u) => u && String(u.createdBy) === String(user?.id)
   );
 
   // Accounts that this admin can switch into (alias for clarity)
@@ -256,13 +262,13 @@ const logout = () => {
   },
     ].filter(Boolean);
     const items =
-      user?.role === 1
+      userRole === 1
         ? adminMenu
-        : user?.role === 2
+        : userRole === 2
         ? teacherMenu
-        : user?.role === 4
+        : userRole === 4
         ? studentMenu
-        : user?.role === 3
+        : userRole === 3
         ? userMenu
         : [];
  

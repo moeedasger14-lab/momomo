@@ -17,9 +17,10 @@ import { useNavigate } from "react-router-dom";
 const { OptGroup, Option } = Select;
 const Signup = () => {
   const navigate = useNavigate();
-       const [signups, setSignups] = useState(() => {
-    return JSON.parse(localStorage.getItem("signupdata")) || [];
-  });
+      const [signups, setSignups] = useState(() => {
+        const raw = JSON.parse(localStorage.getItem("signupdata"));
+        return Array.isArray(raw) ? raw : raw ? [raw] : [];
+      });
 
 
   const [selectedRole, setSelectedRole] = useState(null);
@@ -271,6 +272,7 @@ const [classs, setClasss] = useState([]);
 
     const email = (values.email || "").trim().toLowerCase();
     const name = (values.fullName || "").trim().toLowerCase();
+    const role = Number(values.role);
 
     if (users.some((u) => (u.email || "").trim().toLowerCase() === email)) {
       message.error("Email already in use");
@@ -285,23 +287,34 @@ const [classs, setClasss] = useState([]);
     const newUser = {
       id: Date.now(),
       ...values,
-      status: values.role === 1 ? "approved" : "pending",
+      role,
+      status: role === 1 ? "approved" : "pending",
     };
 
     users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
 
     // Auto tables
-    if (values.role === 2) {
+    if (role === 2) {
       const teachers = JSON.parse(localStorage.getItem("teachers")) || [];
       teachers.push(newUser);
       localStorage.setItem("teachers", JSON.stringify(teachers));
+
+      // also add to pending list for admin approval
+      const pending = JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
+      pending.push(newUser);
+      localStorage.setItem("pendingTeacherSignupData", JSON.stringify(pending));
     }
 
-    if (values.role === 4) {
-      const students = JSON.parse(localStorage.getItem("students")) || [];
-      students.push(newUser);
-      localStorage.setItem("students", JSON.stringify(students));
+    if (role === 4) {
+      // write to both keys so admin and other parts of app see the signup
+      const studentsLower = JSON.parse(localStorage.getItem("students")) || [];
+      studentsLower.push(newUser);
+      localStorage.setItem("students", JSON.stringify(studentsLower));
+
+      const studentsUpper = JSON.parse(localStorage.getItem("Students")) || [];
+      studentsUpper.push(newUser);
+      localStorage.setItem("Students", JSON.stringify(studentsUpper));
     }
 
     message.success(

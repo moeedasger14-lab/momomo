@@ -16,7 +16,8 @@ const [cities, setCities] = useState([]);
   const [live, setLive] = useState("");
  const [classs, setClasss] = useState([]);
  const admin = JSON.parse(localStorage.getItem("currentUser"));
-  const signups = JSON.parse(localStorage.getItem("signupdata")) || [];
+  const _rawSignups = JSON.parse(localStorage.getItem("signupdata"));
+  const signups = Array.isArray(_rawSignups) ? _rawSignups : _rawSignups ? [_rawSignups] : [];
 
 const handleSubmit = (values) => {
     try {
@@ -27,10 +28,12 @@ const handleSubmit = (values) => {
         role,
         status: role === 1 ? "approved" : role === 2 ? "pending" : "pending",
         createdByAdmin: true,
+        createdBy: admin?.id || null,
       };
 
       // Ensure admin/header can see this account
-      const signup = JSON.parse(localStorage.getItem("signupdata")) || [];
+      let signup = JSON.parse(localStorage.getItem("signupdata"));
+      if (!Array.isArray(signup)) signup = signup ? [signup] : [];
       signup.push(newUser);
       localStorage.setItem("signupdata", JSON.stringify(signup));
 
@@ -40,9 +43,15 @@ const handleSubmit = (values) => {
         localStorage.setItem("pendingTeacherSignupData", JSON.stringify(pending));
         message.success("Teacher created and sent for approval");
       } else if (role === 4) {
-        const students = JSON.parse(localStorage.getItem("Students")) || [];
-        students.push(newUser);
-        localStorage.setItem("Students", JSON.stringify(students));
+        // write to both keys (some parts of the app use "Students", others "students")
+        const studentsUpper = JSON.parse(localStorage.getItem("Students")) || [];
+        studentsUpper.push(newUser);
+        localStorage.setItem("Students", JSON.stringify(studentsUpper));
+
+        const studentsLower = JSON.parse(localStorage.getItem("students")) || [];
+        studentsLower.push(newUser);
+        localStorage.setItem("students", JSON.stringify(studentsLower));
+
         message.success("Student created");
       } else {
         const users = JSON.parse(localStorage.getItem("users")) || [];

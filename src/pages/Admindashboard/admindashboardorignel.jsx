@@ -10,7 +10,7 @@ import {
   Tabs,
   message,
 } from "antd";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import "./admindashboard.css";
 
@@ -23,7 +23,7 @@ import {
 } from "@ant-design/icons";
 const { Option, OptGroup } = Select;
 const Admindashboard = () => {
-  
+    const navigate = useNavigate();
   const getAllTeachers = JSON.parse(localStorage.getItem("teachers"));
   const [teachers, setTeachers] = useState(getAllTeachers || []);
  
@@ -39,7 +39,7 @@ const Admindashboard = () => {
   const [messages, setMessages] = useState(
     JSON.parse(localStorage.getItem("messages")) || []
   );
-    const [students, setStudents] = useState(
+    const [Students, setStudents] = useState(
     JSON.parse(localStorage.getItem("Students")) || []
   );
 
@@ -50,6 +50,33 @@ const Admindashboard = () => {
   const [pendingTeachers, setPendingTeachers] = useState(
     JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || []
   );
+
+  // listen for storage changes from other tabs (new signups / approvals)
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (!e.key) return;
+      try {
+        if (e.key === "pendingTeacherSignupData") {
+          setPendingTeachers(JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || []);
+        }
+        if (e.key === "approvedTeacherSignupData") {
+          setApprovedTeachers(JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || []);
+        }
+        if (e.key === "Students" || e.key === "students") {
+          const students = JSON.parse(localStorage.getItem("Students")) || JSON.parse(localStorage.getItem("students")) || [];
+          setStudents(students);
+        }
+        if (e.key === "messages") {
+          setMessages(JSON.parse(localStorage.getItem("messages")) || []);
+        }
+      } catch (err) {
+        // ignore JSON parse errors
+      }
+    };
+
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   // 🔹 APPROVE TEACHER
   const approveTeacher = (teacher) => {
@@ -78,7 +105,7 @@ const Admindashboard = () => {
 
   // 🔹 DELETE STUDENT
   const deleteStudent = (id) => {
-    const filtered = students.filter((s) => s.id !== id);
+    const filtered = Students.filter((s) => s.id !== id);
     setStudents(filtered);
     localStorage.setItem("Students", JSON.stringify(filtered));
   };
@@ -115,29 +142,10 @@ const pending =
       setCities([]);
     }
   };
-  const handleTeachers = (values) => {
-    const id = Date.now();
-    const newTeacher = { ...values, id, key: id };
-    setTeachers((prev) => {
-      const next = [...prev, newTeacher];
-      localStorage.setItem("teachers", JSON.stringify(next));
-      return next;
-    });
-    setTeacherModalVisible(false);
-  };
+  
 
-  const handleStudent = (values) => {
-    const id = Date.now();
-    const newStudent = { ...values, id, key: id };
-    setStudents((prev) => {
-      const next = [...prev, newStudent];
-      localStorage.setItem("Students", JSON.stringify(next));
-      return next;
-    });
-    setStudentModalVisible(false);
-  };
-
-  const navigate = useNavigate();
+  
+ 
   const columns = [
     { title: "full Name", dataIndex: "fullName", key: "fullName" },
     { title: "Gender", dataIndex: "gender", key: "gender" },
@@ -200,46 +208,12 @@ const pending =
     },
   ];
 
-  var colm = [
-    { title: "Student Name", dataIndex: "studentname", key: "studentname" },
-    { title: "Age", dataIndex: "age", key: "age" },
-    { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "city", key: "city" },
-    { title: "Where do you read", dataIndex: "read", key: "read" },
-    {
-      title: "In which school or university",
-      dataIndex: "readss",
-      key: "readss",
-    },
-    { title: "Class Level", dataIndex: "class", key: "class" },
-    { title: "Student id", dataIndex: "ids", key: "ids" },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <Button
-          onClick={() => DeletestudentsbyIds(record.id)}
-          type="dashed"
-          danger
-        >
-          Ban
-        </Button>
-      ),
-    },
-  ];
+ 
 
 
   
-  const handleApproves = (record) => {
-    const newApproved = [...approvedStudents, record];
-    setApprovedStudents(newApproved);
-    localStorage.setItem("approvedStudents", JSON.stringify(newApproved));
-
-    const remainingstudents = students.filter((t) => t.key !== record.key);
-    setStudents(remainingstudents);
-    localStorage.setItem("students", JSON.stringify(remainingstudents));
-  };
+ 
+  
   const handleApprovess = (record) => {
     const newApproved = [...approvedMessages, record];
     setApprovedMessages(newApproved);
@@ -659,15 +633,11 @@ const pending =
           <Card
             style={{ width: "100%" }}
             title="Request"
-            extra={
-              <Button onClick={() => setStudentModalVisible(true)}>
-                Create Student
-              </Button>
-            }
+          
           >
             <Table
               bordered
-              dataSource={students.map((d, i) => ({
+              dataSource={Students.map((d, i) => ({
                 ...d,
                 key: d.key ?? d.id ?? i,
               }))}
@@ -771,7 +741,7 @@ const pending =
           title="Active Students"
         >
           <p>Approved Students:{approvedStudents.length}</p>
-          <p>Students to be Approved:{students.length}</p>
+          <p>Students to be Approved:{Students.length}</p>
         </Card>
       ),
     },
