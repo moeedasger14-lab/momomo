@@ -3,48 +3,34 @@ import Heder from "./component/header/headers";
 import Footercomponenet from "./component/footer/Footer";
 import Home from "./pages/home/home";
 import Signup from "./pages/signup/signup";
-import Login from "./pages/Login/login";
+
 import Admindashboard from "./pages/Admindashboard/admindashboardorignel";
 import Teacherdashboard from "./pages/teacher/teacherdashboard";
 import Subject from "./pages/Subjects/subject";
 import Coures from "./pages/coures/coures";
-
+//import ProtectedRoute from "./protected Route/protectRoute";
 function App() {
   const location = useLocation();
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-  const isLoggedIn = !!currentUser;
-
-  if (!isLoggedIn) {
-    return (
-      <Routes>
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/signup" />} />
-      </Routes>
-    );
-  }
+  
+   
 
   return (
     <>
-      {!["/admindashboard", "/teacherdashboard"].includes(location.pathname) && (
-        <Heder />
-      )}
-
+    <Heder />
       <Routes>
+          <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
         <Route path="/subject" element={<Subject />} />
         <Route path="/course" element={<Coures />} />
-
-        {currentUser.role === 1 && (
-          <Route path="/admindashboard" element={<Admindashboard />} />
-        )}
-
-        {currentUser.role === 2 && (
-          <Route path="/teacherdashboard" element={<Teacherdashboard />} />
-        )}
-
-        <Route path="*" element={<Navigate to="/home" />} />
+ <Route
+  path="/admindashboard"
+  element={
+  
+      <Admindashboard />
+   
+  }
+/>
+      
       </Routes>
 
       <Footercomponenet />

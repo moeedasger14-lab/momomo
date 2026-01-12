@@ -17,10 +17,7 @@ import { useNavigate } from "react-router-dom";
 const { OptGroup, Option } = Select;
 const Signup = () => {
   const navigate = useNavigate();
-      const [signups, setSignups] = useState(() => {
-        const raw = JSON.parse(localStorage.getItem("signupdata"));
-        return Array.isArray(raw) ? raw : raw ? [raw] : [];
-      });
+      
 
 const API = import.meta.env.VITE_API_URL;
   const [selectedRole, setSelectedRole] = useState(null);
@@ -268,7 +265,8 @@ const handleSignup = async (values) => {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values)
+       body: JSON.stringify(values),
+
       }
     );
 
@@ -280,7 +278,7 @@ const handleSignup = async (values) => {
     }
 
     message.success(data.message);
-    navigate("/login");
+    navigate("/home");
   } catch (err) {
     console.error("FETCH ERROR:", err);
     message.error("Server not reachable");

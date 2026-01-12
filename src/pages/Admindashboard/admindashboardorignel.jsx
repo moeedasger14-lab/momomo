@@ -28,120 +28,55 @@ const Admindashboard = () => {
   const [teachers, setTeachers] = useState(getAllTeachers || []);
  
  
+    const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch("http://localhost:60987/api/admin/teachers/pending")
+      .then(res => res.json())
+      .then(resData => {
+        setData(resData);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
   
-   const user = JSON.parse(localStorage.getItem("currentUser"));
-  const [approvedStudents, setApprovedStudents] = useState(
-    JSON.parse(localStorage.getItem("approvedStudents")) || []
-  );
-  const [approvedMessages, setApprovedMessages] = useState(
-    JSON.parse(localStorage.getItem("approvedMessages")) || []
-  );
-  const [messages, setMessages] = useState(
-    JSON.parse(localStorage.getItem("messages")) || []
-  );
-    const [Students, setStudents] = useState(
-    JSON.parse(localStorage.getItem("Students")) || []
-  );
-
-  const [approvedTeachers, setApprovedTeachers] = useState(
-    JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || []
-  );
-
-  const [pendingTeachers, setPendingTeachers] = useState(
-    JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || []
-  );
 
   // listen for storage changes from other tabs (new signups / approvals)
-  useEffect(() => {
-    const onStorage = (e) => {
-      if (!e.key) return;
-      try {
-        if (e.key === "pendingTeacherSignupData") {
-          setPendingTeachers(JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || []);
+  const [user, setUser] = useState(null);
+
+/*  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/users/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-        if (e.key === "approvedTeacherSignupData") {
-          setApprovedTeachers(JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || []);
-        }
-        if (e.key === "Students" || e.key === "students") {
-          const students = JSON.parse(localStorage.getItem("Students")) || JSON.parse(localStorage.getItem("students")) || [];
-          setStudents(students);
-        }
-        if (e.key === "messages") {
-          setMessages(JSON.parse(localStorage.getItem("messages")) || []);
-        }
-      } catch (err) {
-        // ignore JSON parse errors
-      }
+      );
+
+      const data = await res.json();
+      setUser(data);
     };
 
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+    fetchProfile();
+  }, []);*/
+
+  
+
+
 
   // 🔹 APPROVE TEACHER
-  const approveTeacher = (teacher) => {
-    const updatedPending = pendingTeachers.filter(
-      (t) => t.id !== teacher.id
-    );
-    const updatedApproved = [
-      ...approvedTeachers,
-      { ...teacher, status: "approved" },
-    ];
-
-    setPendingTeachers(updatedPending);
-    setApprovedTeachers(updatedApproved);
-
-    localStorage.setItem(
-      "pendingTeacherSignupData",
-      JSON.stringify(updatedPending)
-    );
-    localStorage.setItem(
-      "approvedTeacherSignupData",
-      JSON.stringify(updatedApproved)
-    );
-
-    message.success("Teacher approved");
-  };
-
+  
   // 🔹 DELETE STUDENT
-  const deleteStudent = (id) => {
-    const filtered = Students.filter((s) => s.id !== id);
-    setStudents(filtered);
-    localStorage.setItem("Students", JSON.stringify(filtered));
-  };
-
- 
-  const [school, setSchool] = useState([]);
-  const [cities, setCities] = useState([]);
-  const [universities, setUniversities] = useState([]);
-
-  const [read, setRead] = useState("");
-  const [live, setLive] = useState("");
-
-  const [cla, setCla] = useState([]);
-
-  const [teacherModalVisible, setTeacherModalVisible] = useState(false);
-  const [studentModalVisible, setStudentModalVisible] = useState(false);
-
-const pending =
-    JSON.parse(localStorage.getItem("pendingTeacherSignupData")) || [];
-  const approved =
-    JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
-
  
 
-    // 🔹 CHANGE: update logged-in teacher
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-  const handleCountryChange = (value) => {
-    if (value === "Pakistan") {
-      setCities(["Punjab", "Sindh", "Islamabad", "Balochistan"]);
-    } else if (value === "USA") {
-      setCities(["New York", "Los Angeles", "Chicago", "Houston"]);
-    } else {
-      setCities([]);
-    }
-  };
+ 
+ 
   
 
   
@@ -214,245 +149,6 @@ const pending =
   
  
   
-  const handleApprovess = (record) => {
-    const newApproved = [...approvedMessages, record];
-    setApprovedMessages(newApproved);
-    localStorage.setItem("approvedMessages", JSON.stringify(newApproved));
-
-    const remainingmessages = messages.filter((t) => t.key !== record.key);
-    setMessages(remainingmessages);
-    localStorage.setItem("messages", JSON.stringify(remainingmessages));
-  };
-  const handleWhereDoYouLive = (field, value) => {
-    if (field === "read") {
-      setRead(value);
-    }
-    if (field === "live") {
-      setLive(value);
-    }
-
-    // After updating, decide which schools to show
-    const nextRead = field === "read" ? value : read;
-    const nextLive = field === "live" ? value : live;
-
-    if (nextRead === "School" && nextLive === "Punjab") {
-      setSchool([
-        "Army Public School and College[1]",
-        "Cadet College Hasan Abdal",
-        "The City School",
-        "Smart School Systems",
-        "Modern Public Schools, Shinbagh",
-        "Dar-e-Arqam Schools",
-        "The Hazro City Girls Higher Secondary School, Hazro",
-        "Sir Syed School, Sanjwal Cantt",
-        "FG Boys High School, Sanjwal Cantt",
-        "FG Girls High School, Sanjwal Cantt",
-        "Ranger Public School",
-        "Spring Tide English Immersion School",
-        "The Core Schools",
-        "The Educators",
-        "Government High School",
-        "International School of Cordoba",
-        "National Garrison Secondary School (RYK)",
-        "Army Public School & College",
-        "Beaconhouse School System, Model Town",
-        "Sadiq Public School",
-        "The Protestant Biblical Institute",
-        "Alpina School BWP",
-        "Dominican Convent Higher Secondary School",
-        "The Central School",
-        "The Educators School",
-        "The Allied School",
-        "Saint Dominic Convent Higher Secondary School",
-        "Government High School for Boys Bhakkar",
-        "The Eaglets School - Piala Chowk Bhakkar",
-        "AL Rehman Public ElemeCampus",
-        "School Thattha Loona",
-        "Government High School for Boys Chiniot",
-        "Government High School for Girls Chiniot",
-        "Chenab School",
-        "GHS CHAK NO 241 JB (BHOWANA)",
-        "Meraaj School (Chiniot)",
-        "Abdalian Science Higher Secendory School (ASHSS)",
-        "Bloomfield Hall School (BHS)",
-        "The City School (TCS)",
-        "Lyceum High School",
-        "Garrison Public School and College",
-        "KIPS",
-        "Pearl Grammar Public School, Taunsa",
-        "DG School & College",
-        "Government High School for Boys Dera Ghazi Khan",
-        "Government High School for Girls Dera Ghazi Khan",
-        "Modern Education School System, Dramah",
-      ]);
-    }
-    if (nextRead === "University" && nextLive === "Punjab") {
-      setSchool([
-        "University of the Punjab",
-        "King Edward Medical University",
-        "University of Engineering and Technology, Lahore",
-        "Forman Christian College University",
-        "National College of Arts",
-        "University of Veterinary and Animal Sciences",
-        "Punjab Tianjin University of Technology",
-        "Kinnaird College for Women University",
-        "Government College University, Lahore",
-        "Lahore College for Women University",
-        "Fatima Jinnah Medical University",
-        "Lahore University of Management Sciences",
-        "Institute of Management Sciences, Lahore",
-        "University of Management and Technology, Lahore",
-        "National College of Business Administration and Economics",
-        "University of Central Punjab",
-        "University of Health Sciences, Lahore",
-        "University of Education",
-        "University of Lahore",
-        "Beaconhouse National University",
-        "University of South Asia",
-        "Superior University",
-        "Pakistan Institute of Fashion and Design",
-        "Information Technology University of the Punjab",
-        "Lahore School of Economics",
-        "University of Home Economics Lahore",
-        "NUR International University",
-        "Qarshi University",
-        "Hajvery University",
-        "Institute for Art and Culture[3]",
-        "Green International University[4]",
-        "Lahore Institute of Science and Technology[5]",
-        "Rashid Latif Khan University",
-        "Ali Institute of Education[6]",
-        "Global Institute [HEC-NOC SUSPENDED] (ADMISSIONS HAVE BEEN STOPPED BY HEC FROM FALL 2016)",
-        "Imperial College of Business Studies[7]",
-        "Lahore Leads University[8]",
-        "Lahore University of Biological and Applied Sciences[9]",
-        "University of Child Health Sciences[10]",
-      ]);
-    }
-    if (nextRead === "School" && nextLive === "Sindh") {
-      setSchool(["asger"]);
-    }
-    if (nextRead === "School") {
-      setCla([
-        "Class 4",
-        "class 6",
-        "Class 7",
-        "Class 8",
-        "Class 9",
-        "class 10",
-      ]);
-    }
-    if (nextRead === "Collage") {
-      setCla(["1st year", "2nd year"]);
-    }
-    if (nextRead === "University") {
-      setCla(["first year", "second year", "third year", "forth year"]);
-    }
-  };
-
-  const handleCityChange = (value) => {
-    if (value === "Punjab") {
-      setUniversities([
-        "University of the Punjab",
-        "King Edward Medical University",
-        "University of Engineering and Technology, Lahore",
-        "Forman Christian College University",
-        "National College of Arts",
-        "University of Veterinary and Animal Sciences",
-        "Punjab Tianjin University of Technology",
-        "Kinnaird College for Women University",
-        "Government College University, Lahore",
-        "Lahore College for Women University",
-        "Fatima Jinnah Medical University",
-        "Institute of Management Sciences, Lahore",
-        "University of Management and Technology, Lahore",
-        "National College of Business Administration and Economics",
-        "University of Central Punjab",
-        "University of Health Sciences, Lahore",
-        "University of Education",
-        "University of Lahore",
-        "Beaconhouse National University",
-        "University of South Asia",
-        "Superior University",
-        "Minhaj University, Lahore",
-        "Pakistan Institute of Fashion and Design",
-        "Information Technology University of the Punjab",
-        "Lahore School of Economics",
-        "University of Home Economics Lahore",
-        "NUR International University",
-        "Qarshi University",
-        "Hajvery University",
-        "Institute for Art and Culture[9]",
-        "Green International University[10]",
-        "Lahore Institute of Science and Technology[11]",
-        "Institute of Management & Applied Sciences[31]",
-        "Ghazi National Institute of Engineering & Sciences[26]",
-        "Mir Chakar Khan Rind University of Technology",
-        "Nishtar Medical University",
-        "Khawaja Fareed University of Engineering and Information Technology",
-        "Muhammad Nawaz Sharif University of Engineering and Technology",
-      ]);
-    } else if (value === "Sindh") {
-      setUniversities([
-        "KASB Institute of Technology",
-        "Sindh Madressatul Islam University",
-        "NED University of Engineering and Technology",
-        "Dow University of Health Sciences",
-        "University of Karachi",
-        "Institute of Business Administration, Karachi",
-        "Dawood University of Engineering and Technology",
-        "Pakistan Naval Academy",
-        "Indus Valley School of Art and Architecture",
-        "Commecs institute of business and emerging sciences",
-        "Sir Syed University of Engineering and Technology",
-        "Shaheed Zulfiqar Ali Bhutto Institute of Science and Technology",
-        "Karachi Institute of Economics and Technology",
-        "Dadabhoy Institute of Higher Education",
-        "Qalandar Shahbaz University of Modern Sciences",
-        "Millennium Institute of Technology and Entrepreneurship",
-        "Karachi Institute of Technology & Entrepreneurship",
-        "Emaan Institute of Management and Sciences",
-        "Emaan Institute of Management and Sciences",
-        "Malir University of Science and Technology",
-        "Liaquat University of Medical and Health Sciences",
-        "Mehran University of Engineering and Technology",
-        "Quaid-e-Awam University of Engineering, Science and Technology",
-      ]);
-    }
-  };
-
-  const rejectTeacher = (id) => {
-  const updatedPending = pendingTeachers.filter((t) => t.id !== id);
-
-  localStorage.setItem(
-    "pendingTeacherSignupData",
-    JSON.stringify(updatedPending)
-  );
-
-  setPendingTeachers(updatedPending);
-  message.info("Teacher rejected");
-};
-  const DeleteMessagesbyId = (id) => {
-    const filterData = messages.filter((item) => item.id !== id);
-    setMessages(filterData);
-    localStorage.setItem("messages", JSON.stringify(filterData));
-  };
-
-  const DeleteTeachersbyIds = (id) => {
-    const filterData = approvedTeachers.filter((item) => item.id !== id);
-    setApprovedTeachers(filterData);
-    localStorage.setItem("approvedTeachers", JSON.stringify(filterData));
-  };
-  const DeletestudentsbyIds = (id) => {
-    const filterData = approvedStudents.filter((item) => item.id !== id);
-    setApprovedStudents(filterData);
-    localStorage.setItem("approvedStudents", JSON.stringify(filterData));
-  };
-  const DeleteMessagesbyIds = (id) => {
-    const filterData = approvedMessages.filter((item) => item.id !== id);
-    setApprovedMessages(filterData);
-    localStorage.setItem("approvedMessages", JSON.stringify(filterData));
-  };
   var column = [
     { title: "Teacher Name", dataIndex: "fullName", key: "fullName" },
    
@@ -542,7 +238,7 @@ const pending =
       ),
     },
   ];
-  const messageData = JSON.parse(localStorage.getItem("messages")) || [];
+ 
   const ittm = [
     {
       key: "1",
@@ -553,10 +249,7 @@ const pending =
             scroll={{ x: 1400 }}
             bordered
             style={{ backgroundColor: "blue" }}
-            dataSource={messageData.map((d, i) => ({
-              ...d,
-              key: d.key ?? d.id ?? i,
-            }))}
+           
             columns={col}
           />
         </Card>
@@ -569,10 +262,7 @@ const pending =
         <Card title="Marked Messages by Admin">
           <Table
             scroll={{ x: 1400 }}
-            dataSource={approvedMessages.map((d, i) => ({
-              ...d,
-              key: d.key ?? d.id ?? i,
-            }))}
+        
             columns={cols}
           />
         </Card>
@@ -592,11 +282,11 @@ const pending =
           
           >
             <Table
-              dataSource={pendingTeachers}
+               loading={loading}
                rowKey="id"
               scroll={{ x: 1400 }}
               bordered
-              
+              dataSource={data}
               columns={columns}
             />
           </Card>
@@ -609,10 +299,7 @@ const pending =
       children: (
         <Card style={{ width: "100%" }} title="Approved Teachers">
           <Table
-            dataSource={approvedTeachers.map((d, i) => ({
-              ...d,
-              key: d.key ?? d.id ?? i,
-            }))}
+           
             scroll={true}
             bordered
             rowKey="id"
@@ -637,10 +324,7 @@ const pending =
           >
             <Table
               bordered
-              dataSource={Students.map((d, i) => ({
-                ...d,
-                key: d.key ?? d.id ?? i,
-              }))}
+             
               columns={colum}
             />
           </Card>
@@ -720,8 +404,8 @@ const pending =
           }}
           title="Active Teachers"
         >
-          <p>Approved Teachers:{approvedTeachers.length}</p>
-          <p>Teachers to be Approved:{teachers.length}</p>
+          <p>Approved Teachers:</p>
+          <p>Teachers to be Approved:</p>
         </Card>
       ),
     },
@@ -740,8 +424,8 @@ const pending =
           }}
           title="Active Students"
         >
-          <p>Approved Students:{approvedStudents.length}</p>
-          <p>Students to be Approved:{Students.length}</p>
+          <p>Approved Students:</p>
+          <p>Students to be Approved:</p>
         </Card>
       ),
     },

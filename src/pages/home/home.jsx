@@ -33,12 +33,7 @@ import Footercomponent from "../../component/footer/Footer";
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
-const planets = [
-  { name: "Mercury", color: "#b1b1b1", size: 20, orbit: 60, moons: [] },
-  { name: "Venus", color: "#e0b95d", size: 30, orbit: 100, moons: [] },
-  { name: "Earth", color: "#4a90e2", size: 35, orbit: 140 },
-  { name: "Mars", color: "#d14b3f", size: 25, orbit: 180 },
-];
+
 
 const Home = () => {
   const navigate = useNavigate();
@@ -68,19 +63,7 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    if (!user || shown.current) return;
-    shown.current = true;
-
-    const messages = {
-      1: `Welcome Admin! ${user.fullName}`,
-      2: `Welcome Teacher! ${user.fullName}`,
-      3: `Welcome User ${user.fullName}`,
-      4: `Welcome Student ${user.fullName}`,
-    };
-
-    message.success(messages[user.role]);
-  }, [user]);
+ 
 
  
   const baseItems = [
