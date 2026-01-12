@@ -111,7 +111,7 @@ const Home = () => {
                 learn your subjects easily with the help of expert tutors . So
                 what are you waiting for ? Lets gets started!
               </Text>
-              {[4].includes(user?.role) && (
+              {["student"].includes(user?.role) && (
                 <Button
                   className="btn"
                   id="mod"

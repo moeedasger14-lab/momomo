@@ -86,7 +86,7 @@ const logout = () => {
             </Button>
           </>
         
-
+<Button style={{margin:"10px"}} variant="solid" color="danger" onClick={()=>Logout()}>Logout</Button>
         
          
 

@@ -1,13 +1,12 @@
+import { message } from "antd";
 import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+export default function ProtectedRoute({ children }) {
+  const user = JSON.parse(localStorage.getItem("userfor"));
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/signup" />;
   }
 
   return children;
-};
-
-export default ProtectedRoute;
+}

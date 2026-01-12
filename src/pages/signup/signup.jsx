@@ -279,6 +279,7 @@ const handleSignup = async (values) => {
 
     message.success(data.message);
     navigate("/home");
+    localStorage.setItem("userfor", JSON.stringify(data.user));
   } catch (err) {
     console.error("FETCH ERROR:", err);
     message.error("Server not reachable");

@@ -8,32 +8,40 @@ import Admindashboard from "./pages/Admindashboard/admindashboardorignel";
 import Teacherdashboard from "./pages/teacher/teacherdashboard";
 import Subject from "./pages/Subjects/subject";
 import Coures from "./pages/coures/coures";
-//import ProtectedRoute from "./protected Route/protectRoute";
+import ProtectedRoute from "./protected Route/protectRoute";
+ 
 function App() {
   const location = useLocation();
   
-   
+   const hideLayout = location.pathname === "/signup" && location.pathname === "/admindashboard";
 
   return (
     <>
-    <Heder />
+    {hideLayout &&  <Heder />} 
       <Routes>
           <Route path="/signup" element={<Signup />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/home" element={
+          <ProtectedRoute>
+                 <Home />
+          </ProtectedRoute>
+        }
+          />
         <Route path="/subject" element={<Subject />} />
         <Route path="/course" element={<Coures />} />
  <Route
   path="/admindashboard"
   element={
-  
-      <Admindashboard />
+  <ProtectedRoute>
+ <Admindashboard />
+  </ProtectedRoute>
+     
    
   }
 />
       
       </Routes>
 
-      <Footercomponenet />
+      {hideLayout &&  <Footercomponenet />} 
     </>
   );
 }

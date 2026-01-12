@@ -24,8 +24,8 @@ import {
 const { Option, OptGroup } = Select;
 const Admindashboard = () => {
     const navigate = useNavigate();
-  const getAllTeachers = JSON.parse(localStorage.getItem("teachers"));
-  const [teachers, setTeachers] = useState(getAllTeachers || []);
+ 
+  const [teachers, setTeachers] = useState([]);
  
  
     const [data, setData] = useState([]);
@@ -33,38 +33,23 @@ const Admindashboard = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:60987/api/admin/teachers/pending")
+    fetch("http://localhost:60977/api/admin/teachers/pending")
       .then(res => res.json())
       .then(resData => {
         setData(resData);
         setLoading(false);
       })
       .catch(() => setLoading(false));
+      
+ const interval = setInterval(() => {
+    fetch("http://localhost:60977/api/admin/teachers/pending");
+  }, 3000); // every 3 seconds
+
+  return () => clearInterval(interval);
   }, []);
   
 
   // listen for storage changes from other tabs (new signups / approvals)
-  const [user, setUser] = useState(null);
-
-/*  useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/users/profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await res.json();
-      setUser(data);
-    };
-
-    fetchProfile();
-  }, []);*/
 
   
 
@@ -75,7 +60,49 @@ const Admindashboard = () => {
   // 🔹 DELETE STUDENT
  
 
- 
+ const approveTeacher = async (id) => {
+  if (!id) {
+    console.error("Teacher ID missing");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/admin/users/${id}/approve`,
+      {
+        method: "PATCH",
+      }
+    );
+
+    if (!res.ok) throw new Error("Approve failed");
+
+    fetch("http://localhost:60977/api/admin/teachers/pending"); // refresh table
+  } catch (err) {
+    console.error(err.message);
+  }
+};
+
+const rejectTeacher = async (id) => {
+  if (!id) {
+    console.error("Teacher ID missing");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/admin/users/${id}/reject`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!res.ok) throw new Error("Reject failed");
+
+    fetch("http://localhost:60977/api/admin/teachers/pending"); // refresh table
+  } catch (err) {
+    console.error(err.message);
+  }
+};
  
   
 
@@ -83,25 +110,26 @@ const Admindashboard = () => {
  
   const columns = [
     { title: "full Name", dataIndex: "fullName", key: "fullName" },
+
     { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Expert", dataIndex: "expertise", key: "expertise" },
+    { title: "Expert", dataIndex: ["teacherProfile", "expertise"], key: "expertise" },
     {
       title: "Experience of Teaching",
-      dataIndex: "teachingExperience",
+      dataIndex: ["teacherProfile", "teachingExperience"],
       key: "teachingExperience",
     },
-    { title: "Degree", dataIndex: "degree", key: "degree" },
+    { title: "Degree", dataIndex: ["teacherProfile", "degree"], key: "degree" },
     { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "graduation", key: "graduation" },
+    { title: "City", dataIndex: ["teacherProfile", "graduationCity"],key:"graduation" },
     {
       title: "university graduated from",
-      dataIndex: "university",
+      dataIndex: ["teacherProfile", "university"],
       key: "university",
     },
-    { title: "Student Id", dataIndex: "ids", key: "ids" },
+    { title: "Student Id", dataIndex: ["teacherProfile", "studentId"], key: "ids" },
     {
       title: "Certification Number",
-      dataIndex: "certification",
+      dataIndex: ["teacherProfile", "certification"],
       key: "certification",
     },
     {
@@ -109,8 +137,8 @@ const Admindashboard = () => {
       key: "actions",
       render: (_, record) => (
         <>
-          <Button onClick={() => rejectTeacher(record.id)}>reject</Button>
-          <Button onClick={() => approveTeacher(record)}>approve</Button>
+          <Button onClick={()=>rejectTeacher(record._id)} >reject</Button>
+          <Button onClick={()=>approveTeacher(record._id)} >approve</Button>
         </>
       ),
     },
@@ -156,7 +184,7 @@ const Admindashboard = () => {
     { title: "Expert", dataIndex: "expertise", key: "expertise" },
     {
       title: "Experience of Teaching",
-      dataIndex: "teachingExperience",
+      dataIndex:["teacherProfile","teachingExperience"],
       key: "teachingExperience",
     },
     { title: "Degree", dataIndex: "degree", key: "degree" },
@@ -283,7 +311,7 @@ const Admindashboard = () => {
           >
             <Table
                loading={loading}
-               rowKey="id"
+               rowKey="_id"
               scroll={{ x: 1400 }}
               bordered
               dataSource={data}
@@ -302,7 +330,7 @@ const Admindashboard = () => {
            
             scroll={true}
             bordered
-            rowKey="id"
+            rowKey="_id"
             sticky
             columns={column}
           />
