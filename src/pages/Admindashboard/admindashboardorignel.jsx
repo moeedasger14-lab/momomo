@@ -25,34 +25,33 @@ const { Option, OptGroup } = Select;
 const Admindashboard = () => {
     const navigate = useNavigate();
  
-  const [teachers, setTeachers] = useState([]);
+ const [pendingTachers, setPendingTeachers] = useState([]);
+ const [approvedTeachers, setApprovedTeachers] = useState([]);
  
  
     const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    fetch("http://localhost:60977/api/admin/teachers/pending")
-      .then(res => res.json())
-      .then(resData => {
-        setData(resData);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-      
- const interval = setInterval(() => {
-    fetch("http://localhost:60977/api/admin/teachers/pending");
-  }, 3000); // every 3 seconds
+ const fetchPendingTeachers = async () => {
+  const res = await fetch("http://localhost:60977/api/admin/teachers/pending");
+  const data = await res.json();
+  setPendingTeachers(data);
+};
 
+  
+useEffect(() => {
+  fetchPendingTeachers();
+ fetchApprovedTeachers();
+  const interval = setInterval(()=>{fetchPendingTeachers(),fetchApprovedTeachers()}, 3000);
   return () => clearInterval(interval);
-  }, []);
+
+}, []);
   
-
-  // listen for storage changes from other tabs (new signups / approvals)
-
-  
-
+const fetchApprovedTeachers = async () => {
+  const res = await fetch("http://localhost:60977/api/admin/teachers/approved");
+  const data = await res.json();
+  setApprovedTeachers(data);
+};
 
 
   // 🔹 APPROVE TEACHER
@@ -60,51 +59,28 @@ const Admindashboard = () => {
   // 🔹 DELETE STUDENT
  
 
- const approveTeacher = async (id) => {
-  if (!id) {
-    console.error("Teacher ID missing");
-    return;
-  }
+const approveTeacher = async (id) => {
+  if (!id) return alert("ID missing");
 
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/admin/users/${id}/approve`,
-      {
-        method: "PATCH",
-      }
-    );
+  await fetch(
+    `http://localhost:60977/api/admin/users/${id}/approve`,
+    { method: "PATCH" }
+  );
 
-    if (!res.ok) throw new Error("Approve failed");
-
-    fetch("http://localhost:60977/api/admin/teachers/pending"); // refresh table
-  } catch (err) {
-    console.error(err.message);
-  }
+  fetchPendingTeachers();
+  fetchApprovedTeachers(); // ✅ THIS is required
 };
 
 const rejectTeacher = async (id) => {
-  if (!id) {
-    console.error("Teacher ID missing");
-    return;
-  }
+  if (!id) return alert("ID missing");
 
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/admin/users/${id}/reject`,
-      {
-        method: "DELETE",
-      }
-    );
+  await fetch(
+    `http://localhost:60977/api/admin/users/${id}/reject`,
+    { method: "DELETE" }
+  );
 
-    if (!res.ok) throw new Error("Reject failed");
-
-    fetch("http://localhost:60977/api/admin/teachers/pending"); // refresh table
-  } catch (err) {
-    console.error(err.message);
-  }
+  fetchPendingTeachers(); // ✅ THIS is required
 };
- 
-  
 
   
  
@@ -137,8 +113,8 @@ const rejectTeacher = async (id) => {
       key: "actions",
       render: (_, record) => (
         <>
-          <Button onClick={()=>rejectTeacher(record._id)} >reject</Button>
-          <Button onClick={()=>approveTeacher(record._id)} >approve</Button>
+          <Button onClick={() => rejectTeacher(record._id)} >reject</Button>
+          <Button onClick={() => approveTeacher(record._id)} >approve</Button>
         </>
       ),
     },
@@ -181,24 +157,24 @@ const rejectTeacher = async (id) => {
     { title: "Teacher Name", dataIndex: "fullName", key: "fullName" },
    
     { title: "Gender", dataIndex: "gender", key: "gender" },
-    { title: "Expert", dataIndex: "expertise", key: "expertise" },
+    { title: "Expert", dataIndex: ["teacherProfile", "expertise"], key: "expertise" },
     {
       title: "Experience of Teaching",
       dataIndex:["teacherProfile","teachingExperience"],
       key: "teachingExperience",
     },
-    { title: "Degree", dataIndex: "degree", key: "degree" },
+    { title: "Degree", dataIndex: ["teacherProfile", "degree"], key: "degree" },
     { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "gratuation", key: "gratuation" },
+    { title: "City", dataIndex: ["teacherProfile", "graduationCity"], key: "graduationCity" },
     {
       title: "university graduated from",
-      dataIndex: "university",
+      dataIndex: ["teacherProfile", "university"],
       key: "university",
     },
-    { title: "Student Id", dataIndex: "ids", key: "ids" },
+    { title: "Student Id", dataIndex: ["teacherProfile", "studentId"], key: "ids" },
     {
       title: "Certification Number",
-      dataIndex: "certification",
+      dataIndex: ["teacherProfile", "certification"],
       key: "certification",
     },
       { title: "Status", render: () => "Approved" },
@@ -207,7 +183,7 @@ const rejectTeacher = async (id) => {
       key: "actions",
       render: (_, record) => (
         <Button
-          onClick={() => DeleteTeachersbyIds(record.id)}
+          
           type="dashed"
           danger
         >
@@ -314,7 +290,7 @@ const rejectTeacher = async (id) => {
                rowKey="_id"
               scroll={{ x: 1400 }}
               bordered
-              dataSource={data}
+              dataSource={pendingTachers}
               columns={columns}
             />
           </Card>
@@ -327,7 +303,7 @@ const rejectTeacher = async (id) => {
       children: (
         <Card style={{ width: "100%" }} title="Approved Teachers">
           <Table
-           
+           dataSource={approvedTeachers}
             scroll={true}
             bordered
             rowKey="_id"

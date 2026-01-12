@@ -272,14 +272,19 @@ const handleSignup = async (values) => {
 
     const data = await res.json();
 
-    if (!res.ok) {
-      message.error(data.message || "Signup failed");
-      return;
-    }
+   if (res.ok) {
+  const data = await res.json();
 
-    message.success(data.message);
+  // store user id + role
+  localStorage.setItem("pendingUserId", data.user.id);
+  localStorage.setItem("role", data.user.role);
+
+  message.success(data.message);
+
+  if (data.user.role === "admin") {
     navigate("/home");
-    localStorage.setItem("userfor", JSON.stringify(data.user));
+  }
+}
   } catch (err) {
     console.error("FETCH ERROR:", err);
     message.error("Server not reachable");
@@ -287,7 +292,35 @@ const handleSignup = async (values) => {
 };
 
 
+useEffect(() => {
+  const userId = localStorage.getItem("pendingUserId");
 
+  if (!userId) return;
+
+  const interval = setInterval(async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:60977/api/admin/users/status/${userId}`
+      );
+
+      const data = await res.json();
+
+      if (data.status === "approved") {
+        localStorage.removeItem("pendingUserId");
+        navigate("/home");
+      }
+
+      if (data.status === "rejected") {
+        localStorage.removeItem("pendingUserId");
+        message.error("Your signup was rejected");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, 3000); // every 3 seconds
+
+  return () => clearInterval(interval);
+}, []);
 
 
 
