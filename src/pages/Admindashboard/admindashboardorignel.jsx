@@ -27,7 +27,8 @@ const Admindashboard = () => {
  
  const [pendingTachers, setPendingTeachers] = useState([]);
  const [approvedTeachers, setApprovedTeachers] = useState([]);
- 
+ const [pendingStudents, setPendingStudents] = useState([]);
+ const [approvedStudents, setApprovedStudents] = useState([]);
  
     const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,14 +40,8 @@ const Admindashboard = () => {
 };
 
   
-useEffect(() => {
-  fetchPendingTeachers();
- fetchApprovedTeachers();
-  const interval = setInterval(()=>{fetchPendingTeachers(),fetchApprovedTeachers()}, 3000);
-  return () => clearInterval(interval);
 
-}, []);
-  
+ 
 const fetchApprovedTeachers = async () => {
   const res = await fetch("http://localhost:60977/api/admin/teachers/approved");
   const data = await res.json();
@@ -67,8 +62,10 @@ const approveTeacher = async (id) => {
     { method: "PATCH" }
   );
 
-  fetchPendingTeachers();
-  fetchApprovedTeachers(); // ✅ THIS is required
+ fetchPendingTeachers();
+fetchApprovedTeachers();
+fetchPendingStudents();
+fetchApprovedStudents(); // ✅ THIS is required
 };
 
 const rejectTeacher = async (id) => {
@@ -81,10 +78,49 @@ const rejectTeacher = async (id) => {
 
   fetchPendingTeachers(); // ✅ THIS is required
 };
+const fetchPendingStudents = async () => {
+  try {
+    const res = await fetch("http://localhost:60977/api/admin/students/pending");
+    const data = await res.json();
 
-  
- 
-  const columns = [
+    setPendingStudents(Array.isArray(data) ? data : data.students || []);
+  } catch (err) {
+    console.error(err);
+    setPendingStudents(Array.isArray(data) ? data : []);
+  }
+};
+const fetchApprovedStudents = async () => {
+  try {
+    const res = await fetch("http://localhost:60977/api/admin/students/approved");
+    const data = await res.json();
+
+    setApprovedStudents(Array.isArray(data) ? data : data.students || []);
+  } catch (err) {
+    console.error(err);
+    setApprovedStudents();
+  }
+};
+
+
+
+  useEffect(() => {
+    fetchPendingTeachers();
+    fetchApprovedTeachers();
+    fetchPendingStudents();
+    fetchApprovedStudents();
+
+    const interval = setInterval(() => {
+      fetchPendingTeachers();
+      fetchApprovedTeachers();
+      fetchPendingStudents();
+      fetchApprovedStudents();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+
+const columns = [
     { title: "full Name", dataIndex: "fullName", key: "fullName" },
 
     { title: "Gender", dataIndex: "gender", key: "gender" },
@@ -126,30 +162,59 @@ const rejectTeacher = async (id) => {
     { title: "Student Name", dataIndex: "fullName", key: "fullName" },
     { title: "Gender", dataIndex: "gender", key: "gender" },
     { title: "Country", dataIndex: "country", key: "country" },
-    { title: "City", dataIndex: "live", key: "live" },
-    { title: "Where do you read", dataIndex: "read", key: "read" },
-    { title: "Class Level", dataIndex: "class", key: "class" },
+    { title: "City", dataIndex: ["studentProfile", "live"], key: "live" },
+    { title: "Where do you read", dataIndex: ["studentProfile", "read"], key: "read" },
+    { title: "Class Level", dataIndex: ["studentProfile", "class"], key: "class" },
+    {title:"Status",render:()=>"Pending"},
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <>
+          <Button
+          
+            type="dashed"
+            danger
+            style={{ margin: 8 }}
+          >
+            Reject
+          </Button>
+          <Button
+          type="dashed"
+          color="green"
+          >
+            Approve
+          </Button>
+          </>
+      ),
+    },
+  ];
+
+ 
+ var colums = [
+    { title: "Student Name", dataIndex: "fullName", key: "fullName" },
+    { title: "Gender", dataIndex: "gender", key: "gender" },
+    { title: "Country", dataIndex: "country", key: "country" },
+    { title: "City", dataIndex: ["studentProfile", "live"], key: "live" },
+    { title: "Where do you read", dataIndex: ["studentProfile", "read"], key: "read" },
+    { title: "Class Level", dataIndex: ["studentProfile", "class"], key: "class" },
+    {title:"Status",render:()=>"Pending"},
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         
           <Button
-            onClick={() => deleteStudent(record.id)}
+          
             type="dashed"
             danger
-            style={{ marginRight: 8 }}
+            style={{ margin: "5px" }}
           >
             Reject
           </Button>
-          
-      ),
-    },
+),
+    }
   ];
-
- 
-
-
   
  
   
@@ -183,7 +248,7 @@ const rejectTeacher = async (id) => {
       key: "actions",
       render: (_, record) => (
         <Button
-          
+          onClick={()=>rejectTeacher(record._id)}
           type="dashed"
           danger
         >
@@ -304,7 +369,7 @@ const rejectTeacher = async (id) => {
         <Card style={{ width: "100%" }} title="Approved Teachers">
           <Table
            dataSource={approvedTeachers}
-            scroll={true}
+            scroll={{x : 1400}}
             bordered
             rowKey="_id"
             sticky
@@ -327,15 +392,25 @@ const rejectTeacher = async (id) => {
           
           >
             <Table
+            rowKey="_id"
               bordered
-             
+             scroll={{x : 1400}}
+             dataSource={pendingStudents}
               columns={colum}
             />
           </Card>
         </>
       ),
     },
-   
+   {
+    key:"2",
+    label:"Approved Students",
+    children:(
+      <Card >
+        <Table rowKey="_id" dataSource={approvedStudents} scroll={{ x : 1400 }} bordered columns={colums} />
+      </Card>
+    )
+   }
   ];
 
   var item = [

@@ -12,12 +12,20 @@ import {
   ColorPicker,
 } from "antd";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 const { OptGroup, Option } = Select;
 const Signup = () => {
   const navigate = useNavigate();
-      
+      const user = JSON.parse(localStorage.getItem("userfor"));
+
+useEffect(() => {
+  if (user) {
+    if (user.role === "admin") navigate("/admindashboard");
+    else if (user.role === "teacher") navigate("/teacherdashboard");
+    else navigate("/home");
+  }
+}, []);
 
 const API = import.meta.env.VITE_API_URL;
   const [selectedRole, setSelectedRole] = useState(null);
@@ -259,79 +267,69 @@ const [classs, setClasss] = useState([]);
     },
   ];
 const handleSignup = async (values) => {
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/signup`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-       body: JSON.stringify(values),
+  
+  const res = await fetch("http://localhost:60977/api/auth/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
 
-      }
-    );
+    body: JSON.stringify(values),
+  });
 
-    const data = await res.json();
-
-   if (res.ok) {
   const data = await res.json();
 
-  // store user id + role
-  localStorage.setItem("pendingUserId", data.user.id);
-  localStorage.setItem("role", data.user.role);
+  if (!res.ok) {
+    message.error(data.message);
+    return;
+  }
+
+  // ✅ VERY IMPORTANT
+  localStorage.setItem(
+  "currentUser",
+  JSON.stringify({
+    id: data.user._id,
+    role: data.user.role
+  })
+);
+
+
 
   message.success(data.message);
 
-  if (data.user.role === "admin") {
-    navigate("/home");
-  }
-}
-  } catch (err) {
-    console.error("FETCH ERROR:", err);
-    message.error("Server not reachable");
-  }
+  // ✅ EVERYONE GOES HOME
+  navigate("/home");
 };
 
-
 useEffect(() => {
-  const userId = localStorage.getItem("pendingUserId");
-
-  if (!userId) return;
+  const pending = JSON.parse(localStorage.getItem("pendingUser"));
+  if (!pending?.id) return;
 
   const interval = setInterval(async () => {
-    try {
-      const res = await fetch(
-        `http://localhost:60977/api/admin/users/status/${userId}`
-      );
+    const res = await fetch(
+      `http://localhost:60977/api/admin/users/status/${pending.id}`
+    );
 
-      const data = await res.json();
+    if (!res.ok) return;
 
-      if (data.status === "approved") {
-        localStorage.removeItem("pendingUserId");
-        navigate("/home");
-      }
+    const data = await res.json();
 
-      if (data.status === "rejected") {
-        localStorage.removeItem("pendingUserId");
-        message.error("Your signup was rejected");
-      }
-    } catch (err) {
-      console.error(err);
+    if (data.status === "approved") {
+      const approvedUser = {
+        id: pending.id,
+        role: data.role,
+        status: "approved",
+      };
+
+      localStorage.setItem("currentUser", JSON.stringify(approvedUser));
+      localStorage.removeItem("pendingUser");
+
+      if (data.role === "admin") navigate("/admindashboard");
+      if (data.role === "teacher") navigate("/teacherdashboard");
+      if (data.role === "student") navigate("/home");
     }
-  }, 3000); // every 3 seconds
+  }, 3000);
 
   return () => clearInterval(interval);
 }, []);
-
-
-
-
-
-
-
-
-
-
-
 
   return (
      <div style={{ display: "flex", justifyContent: "center" }}>

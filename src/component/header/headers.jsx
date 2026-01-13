@@ -19,17 +19,29 @@ import Icon, {
 } from "@ant-design/icons";
 
 const { Header } = Layout;
- const { Text } = Typography;
+const { Text } = Typography;
 const Heder = () => {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("currentUser")); // ✅ SAME KEY everywhere
 
+ const handleDashboard = async () => {
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  if (!user) return navigate("/signup");
 
-const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("currentUser");
-  navigate("/signup");
+  const res = await fetch(
+    `http://localhost:60977/api/admin/users/status/${user.id}`
+  );
+  const data = await res.json();
+
+  if (data.status !== "approved") {
+    alert("Waiting for admin approval");
+    return;
+  }
+
+  if (data.role === "admin") navigate("/admin-dashboard");
+  if (data.role === "teacher") navigate("/teacher-dashboard");
 };
-
+  
   return (
     <>
       <Header
@@ -57,7 +69,7 @@ const logout = () => {
             marginLeft: "5px",
           }}
         />
-        <Text style={{ marginRight: "710px", marginLeft: "10px" }} italic>
+        <Text style={{ marginRight: "630px", marginLeft: "10px" }} italic>
           Web Assistance
         </Text>
         <Button
@@ -67,33 +79,43 @@ const logout = () => {
         >
           Home
         </Button>
-       
-          <>
-            <Button
-              className="btn"
-              style={{ marginRight: "8px", marginLeft: "10px" }}
-              type="primary"
-              onClick={() => navigate("/subject")}
-            >
-              Subjects + Language
-            </Button>
-            <Button
-              onClick={() => navigate("/course")}
-              className="btn"
-              type="primary"
-            >
-              Courses
-            </Button>
-          </>
+
+        <>
+          <Button
+            className="btn"
+            style={{ marginRight: "8px", marginLeft: "10px" }}
+            type="primary"
+            onClick={() => navigate("/subject")}
+          >
+            Subjects + Language
+          </Button>
+          <Button
+            onClick={() => navigate("/course")}
+            className="btn"
+            type="primary"
+          >
+            Courses
+          </Button>
+        </>
+        <Button
         
-<Button style={{margin:"10px"}} variant="solid" color="danger" onClick={()=>Logout()}>Logout</Button>
-        
+          type="primary"
+          className="btn"
+          style={{ margin: "6px" }}
+          onClick={() => handleDashboard()}
+        >
+          Dashboard
+        </Button>
+        <Button
+          style={{ margin: "10px" }}
+          variant="solid"
+          color="danger"
          
-
-
-
+      >
+        
+          Logout
+        </Button>
       </Header>
-      
     </>
   );
 };
