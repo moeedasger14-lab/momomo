@@ -22,15 +22,27 @@ const { Header } = Layout;
 const { Text } = Typography;
 const Heder = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("currentUser")); // ✅ SAME KEY everywhere
+   // ✅ SAME KEY everywhere
+const handleDashboardClick = async () => {
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  if (!currentUser?.id) {
+    navigate("/signup");
+    return;
+  }
 
- const handleDashboard = async () => {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  if (!user) return navigate("/signup");
+  // ADMIN → local check only
+  if (currentUser.role === "admin") {
+    navigate("/admindashboard");
+    return;
+  }
 
+  // TEACHER / STUDENT → backend check
   const res = await fetch(
-    `http://localhost:60977/api/admin/users/status/${user.id}`
+    `http://localhost:60977/api/admin/users/status/${currentUser.id}`
   );
+
+  if (!res.ok) return;
+
   const data = await res.json();
 
   if (data.status !== "approved") {
@@ -38,8 +50,8 @@ const Heder = () => {
     return;
   }
 
-  if (data.role === "admin") navigate("/admin-dashboard");
-  if (data.role === "teacher") navigate("/teacher-dashboard");
+  if (data.role === "teacher") navigate("/teacherdashboard");
+  if (data.role === "student") navigate("/home");
 };
   
   return (
@@ -102,7 +114,7 @@ const Heder = () => {
           type="primary"
           className="btn"
           style={{ margin: "6px" }}
-          onClick={() => handleDashboard()}
+          onClick={() => handleDashboardClick()}
         >
           Dashboard
         </Button>

@@ -1,41 +1,16 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-export default function ProtectRoute({ children, allowedRoles }) {
-  const [loading, setLoading] = useState(true);
-  const [allowed, setAllowed] = useState(false);
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    if (!user?.id) {
-      setAllowed(false);
-      setLoading(false);
-      return;
-    }
 
-    fetch(`http://localhost:60977/api/admin/users/status/${user.id}`)
-      .then(res => res.json())
-      .then(data => {
-        if (
-          data.status === "approved" &&
-          allowedRoles.includes(data.role)
-        ) {
-          setAllowed(true);
-        } else {
-          setAllowed(false);
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setAllowed(false);
-        setLoading(false);
-      });
-  }, []);
+const ProtectedRoute = ({ allowedRoles }) => {
+  const user = JSON.parse(localStorage.getItem("currentUser"));
 
-  if (loading) return null;
+  if (!user?.id) return <Navigate to="/signup" replace />;
+  if (!allowedRoles.includes(user.role))
+    return <Navigate to="/home" replace />;
 
-  if (!allowed) return <Navigate to="/home" />;
+  return <Outlet />;
+};
 
-  return children;
-}
-
+export default ProtectedRoute;

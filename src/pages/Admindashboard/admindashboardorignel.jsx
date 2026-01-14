@@ -101,7 +101,22 @@ const fetchApprovedStudents = async () => {
   }
 };
 
+const approveStudent = async (id) => {
+  await fetch(
+    `http://localhost:60977/api/admin/users/${id}/approve`,
+    { method: "PATCH" }
+  );
+  fetchPendingStudents();
+  fetchApprovedStudents();
+};
 
+const rejectStudent = async (id) => {
+  await fetch(
+    `http://localhost:60977/api/admin/users/${id}/reject`,
+    { method: "DELETE" }
+  );
+  fetchPendingStudents();
+};
 
   useEffect(() => {
     fetchPendingTeachers();
@@ -172,7 +187,7 @@ const columns = [
       render: (_, record) => (
         <>
           <Button
-          
+          onClick={()=>rejectStudent(record._id)}
             type="dashed"
             danger
             style={{ margin: 8 }}
@@ -180,6 +195,7 @@ const columns = [
             Reject
           </Button>
           <Button
+          onClick={()=>approveStudent(record._id)}
           type="dashed"
           color="green"
           >

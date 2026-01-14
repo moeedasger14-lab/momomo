@@ -13,42 +13,11 @@ import { useEffect } from "react";
  
 function App() {
   
-  const user = JSON.parse(localStorage.getItem("authUser"));
+  
  const location = useLocation();
   const navigate = useNavigate();
 
-  // 🔁 Poll approval
-  useEffect(() => {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  if (!user || user.status === "approved") return;
 
-  const interval = setInterval(async () => {
-    const res = await fetch(
-      `http://localhost:60977/api/admin/users/status/${user.id}`
-    );
-
-    if (!res.ok) return;
-
-    const data = await res.json();
-
-    if (data.status === "approved") {
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({ ...user, status: "approved" })
-      );
-
-      clearInterval(interval);
-
-      if (data.role === "teacher") {
-        window.location.href = "/teacher-dashboard";
-      } else if (data.role === "student") {
-        window.location.href = "/student-dashboard";
-      }
-    }
-  }, 3000);
-
-  return () => clearInterval(interval);
-}, []);
 
   // Hide header/footer ONLY on signup
   const hideLayout = location.pathname === "/signup";
@@ -58,69 +27,36 @@ function App() {
       {!hideLayout && <Heder />}
 
       <Routes>
-        {/* Signup */}
-        <Route
-  path="/signup"
-  element={
-     JSON.parse(localStorage.getItem("currentUser")) ? (
-      <Navigate to="/home" />
-    ) : (
-      <Signup />
-    )
-    
-  }
-/>
-        {/* Home (students) */}
-        <Route
-          path="/home"
-          element={
-          
-              <Home />
-           
-          }
-        />
 
-        {/* Teacher dashboard */}
-        <Route
-          path="/teacherdashboard"
-          element={
-            <ProtectedRoute    allowedRoles={["teacher"]}>
-              <Teacherdashboard />
-            </ProtectedRoute>
-          }
-        />
+  {/* SIGNUP */}
+  <Route
+    path="/signup"
+    element={
+      JSON.parse(localStorage.getItem("currentUser"))
+        ? <Navigate to="/home" replace />
+        : <Signup />
+    }
+  />
 
-        {/* Admin dashboard */}
-        <Route
-          path="/admindashboard"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Admindashboard />
-            </ProtectedRoute>
-          }
-        />
+  {/* HOME (everyone who signed up) */}
+  <Route path="/home" element={<Home />} />
 
-        {/* Common routes */}
-        <Route
-          path="/subject"
-          element={
-          <Subject />
-          
-          }
-        />
+  {/* ADMIN */}
+  <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+    <Route path="/admindashboard" element={<Admindashboard />} />
+  </Route>
 
-        <Route
-          path="/course"
-          element={
-            
-              <Coures />
-           
-          }
-        />
+  {/* TEACHER */}
+  <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
+    <Route path="/teacherdashboard" element={<Teacherdashboard />} />
+  </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/signup" />} />
-      </Routes>
+
+
+  {/* BLOCK EVERYTHING ELSE */}
+  <Route path="*" element={<Navigate to="/signup" replace />} />
+
+</Routes>
 
       {!hideLayout && <Footercomponenet />}
     </>

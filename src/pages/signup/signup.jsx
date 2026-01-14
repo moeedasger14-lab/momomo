@@ -286,17 +286,13 @@ const handleSignup = async (values) => {
   localStorage.setItem(
   "currentUser",
   JSON.stringify({
-    id: data.user._id,
-    role: data.user.role
+    id: data.user.id,
+    role: data.user.role,
+   
   })
 );
-
-
-
+ navigate("/home");
   message.success(data.message);
-
-  // ✅ EVERYONE GOES HOME
-  navigate("/home");
 };
 
 useEffect(() => {
