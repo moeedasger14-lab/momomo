@@ -51,7 +51,8 @@ function App() {
     <Route path="/teacherdashboard" element={<Teacherdashboard />} />
   </Route>
 
-
+<Route path="/subjects"  element={<Subject />} />
+<Route path="/courses" element={<Coures />} />
 
   {/* BLOCK EVERYTHING ELSE */}
   <Route path="*" element={<Navigate to="/signup" replace />} />

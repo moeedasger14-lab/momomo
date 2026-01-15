@@ -97,12 +97,12 @@ const handleDashboardClick = async () => {
             className="btn"
             style={{ marginRight: "8px", marginLeft: "10px" }}
             type="primary"
-            onClick={() => navigate("/subject")}
+            onClick={() => navigate("/subjects")}
           >
             Subjects + Language
           </Button>
           <Button
-            onClick={() => navigate("/course")}
+            onClick={() => navigate("/courses")}
             className="btn"
             type="primary"
           >
