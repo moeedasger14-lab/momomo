@@ -25,30 +25,36 @@ const Teacherdashboard = () => {
   const getAllCourses = JSON.parse(localStorage.getItem("Courses"));
   const [courses, setCourses] = useState(getAllCourses || []);
     const user = JSON.parse(localStorage.getItem("currentUser"));
-  if (user?.status !== "approved") {
-    return (
-      <Alert
-        message="Your account is pending admin approval"
-        type="warning"
-        showIcon
-      ></Alert>
-    );
-  }
-  const handleCourses = (values) => {
-    const id = Date.now();
-    const newCourses = {
-    ...values,
-    id,
-    key: id,
-   
-  };
 
-    setCourses((prev) => {
-      const next = [...prev, newCourses];
-      localStorage.setItem("Courses", JSON.stringify(next));
-      return next;
-    });
-  };
+  const colim = [
+    {
+      label:"Monday", value:"Monday"
+    },
+    {
+      label:"Tuesday", value:"Tuesday"
+    },
+    {
+      label:"Wednesday", value:"Wednesday"
+    },
+    {
+      label:"Thursday", value:"Thursday"
+    },
+    {
+      label:"Friday", value:"Friday"
+    },
+    {
+      label:"Saturday", value:"Saturday"
+    },
+    {
+      label:"Sunday", value:"Sunday"
+    },
+    {
+      label:"Full Week", value:"Full Week"
+    },
+    {
+      label:"Saturday and Sunday", value:"Saturday and Sunday"
+    }
+  ]
   const co = [
     {
       label: "20",
@@ -227,6 +233,11 @@ const Teacherdashboard = () => {
       key: "offers",
     },
     {
+     title:"Class Days",
+     dataIndex:"classdays",
+     key:"classdays",
+    },
+    {
       title: "Timing",
       dataIndex: "timing",
       key: "timing",
@@ -343,7 +354,7 @@ const Teacherdashboard = () => {
               <ModalForm
                
                 dateFormatter="string"
-                onFinish={handleCourses}
+               
              submitter={false}
                 width={800}
                 autoFocusFirstInput
@@ -351,7 +362,7 @@ const Teacherdashboard = () => {
                 title="Create Course"
                 trigger={<Button icon={<PlusOutlined />}>Create course</Button>}
               >
-                <ProForm.Group onFinish={handleCourses}>
+                <ProForm.Group >
                   <ProFormText
                     width="md"
                     name="coursename"
@@ -391,6 +402,17 @@ const Teacherdashboard = () => {
                       { required: true, message: "Please select time range!" },
                     ]}
                   />
+                  <ProFormSelect
+                    width="md"
+                    name="classdays"
+                    label="Class Days:"
+                    placeholder="Please select class days"
+                    rules={[
+                      { required: true, message: "Please select time range!" },
+                    ]}
+                    options={colim}
+                  />
+
                   <ProFormSelect
                     width="md"
                     name="pricestatus"
@@ -517,7 +539,7 @@ const Teacherdashboard = () => {
             rowKey="id"
            
             dateFormatter="string"
-              scroll={{ x: 1500 }}
+              scroll={{ x: 1400 }}
               columns={columns}
               onLoad={5}
               dataSource={courses}
