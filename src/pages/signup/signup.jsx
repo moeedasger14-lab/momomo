@@ -286,7 +286,7 @@ const handleSignup = async (values) => {
   localStorage.setItem(
   "currentUser",
   JSON.stringify({
-    id: data.user.id,
+    _id: data.user._id,
     role: data.user.role,
    
   })

@@ -36,7 +36,7 @@ const Admindashboard = () => {
  const fetchPendingTeachers = async () => {
   const res = await fetch("http://localhost:60977/api/admin/teachers/pending");
   const data = await res.json();
-  setPendingTeachers(data);
+  setPendingTeachers(Array.isArray(data) ? data : data.teachers || []);
 };
 
   
@@ -45,7 +45,7 @@ const Admindashboard = () => {
 const fetchApprovedTeachers = async () => {
   const res = await fetch("http://localhost:60977/api/admin/teachers/approved");
   const data = await res.json();
-  setApprovedTeachers(data);
+  setApprovedTeachers(Array.isArray(data) ? data : data.teachers || []);
 };
 
 
@@ -76,7 +76,7 @@ const rejectTeacher = async (id) => {
     { method: "DELETE" }
   );
 
-  fetchPendingTeachers(); // ✅ THIS is required
+  fetchPendingTeachers(Array.isArray(data) ? data : data.teachers || []); // ✅ THIS is required
 };
 const fetchPendingStudents = async () => {
   try {
@@ -97,7 +97,7 @@ const fetchApprovedStudents = async () => {
     setApprovedStudents(Array.isArray(data) ? data : data.students || []);
   } catch (err) {
     console.error(err);
-    setApprovedStudents();
+    setApprovedStudents(Array.isArray(data) ? data : data.teachers || []);
   }
 };
 
@@ -333,8 +333,9 @@ const columns = [
           <Table
             scroll={{ x: 1400 }}
             bordered
+            dataSource={[]}
             style={{ backgroundColor: "blue" }}
-           
+            rowKey="_id"
             columns={col}
           />
         </Card>
@@ -347,7 +348,8 @@ const columns = [
         <Card title="Marked Messages by Admin">
           <Table
             scroll={{ x: 1400 }}
-        
+        rowKey="_id"
+        dataSource={[]}
             columns={cols}
           />
         </Card>

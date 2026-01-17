@@ -23,35 +23,42 @@ const { Text } = Typography;
 const Heder = () => {
   const navigate = useNavigate();
    // ✅ SAME KEY everywhere
-const handleDashboardClick = async () => {
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-  if (!currentUser?.id) {
+   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const handleDashboard = async () => {
+  if (!currentUser) {
     navigate("/signup");
     return;
   }
 
-  // ADMIN → local check only
+  // ✅ ADMIN → direct access
   if (currentUser.role === "admin") {
     navigate("/admindashboard");
     return;
   }
 
-  // TEACHER / STUDENT → backend check
+  // ✅ TEACHER / STUDENT → backend check
   const res = await fetch(
-    `http://localhost:60977/api/admin/users/status/${currentUser.id}`
+    `http://localhost:60977/api/admin/users/status/${currentUser._id}`
   );
 
-  if (!res.ok) return;
+  if (!res.ok) {
+    alert("Unable to verify approval");
+    return;
+  }
 
   const data = await res.json();
 
   if (data.status !== "approved") {
-    alert("Waiting for admin approval");
+    alert("You are not approved yet");
     return;
   }
 
-  if (data.role === "teacher") navigate("/teacherdashboard");
-  if (data.role === "student") navigate("/home");
+  // Approved
+  if (data.role === "teacher") {
+    navigate("/teacherdashboard");
+  } else if (data.role === "student") {
+    navigate("/studentdashboard");
+  }
 };
   
   return (
@@ -114,7 +121,7 @@ const handleDashboardClick = async () => {
           type="primary"
           className="btn"
           style={{ margin: "6px" }}
-          onClick={() => handleDashboardClick()}
+          onClick={() => handleDashboard()}
         >
           Dashboard
         </Button>
