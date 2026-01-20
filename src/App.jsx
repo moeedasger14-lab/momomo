@@ -20,7 +20,8 @@ function App() {
 
 
   // Hide header/footer ONLY on signup
-  const hideLayout = location.pathname === "/signup";
+  const hideLayout = location.pathname === "/signup" || location.pathname === "/admindashboard" ||
+   location.pathname === "/teacherdashboard";
 
   return (
     <>

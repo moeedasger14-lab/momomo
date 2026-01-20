@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Affix,
   Button,
@@ -39,6 +39,13 @@ const Home = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("currentUser"));
  const shown = useRef(false);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:60977/api/courses/approved")
+      .then((res) => res.json())
+      .then((data) => setCourses(Array.isArray(data) ? data : []));
+  }, []);
   const handleMessage = (values) => {
     const lastSent = localStorage.getItem("lastMessageTime");
     const now = Date.now();
@@ -486,18 +493,33 @@ const Home = () => {
     },
     {
       key: "5",
-      label: "Most Popular Courses",
+      label: "Most Popular Courses and subjects",
+      children:(
+         <Card title="Available Courses" gutter={[16, 16]} wrap>
+      {courses.map((course) => (
+        <Card
+          key={course._id}
+          colSpan={6}
+          bordered
+          title={course.title}
+        >
+          <p>{course.description}</p>
+          <p>
+            <b>Teacher:</b> {course.teacherId?.name}
+          </p>
+          <Button type="primary">Enroll</Button>
+        </Card>
+      ))}
+    </Card>
+      ),
     },
+   
     {
       key: "6",
-      label: "Most Popular Subjects",
-    },
-    {
-      key: "7",
       label: "Comments and Reviews",
     },
     {
-      key: "8",
+      key: "7",
       label: "Why choose web assistance?",
       children: (
         <>

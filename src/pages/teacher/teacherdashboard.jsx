@@ -22,10 +22,8 @@ import { useNavigate } from "react-router-dom";
 
 const Teacherdashboard = () => {
   const navigate = useNavigate();
-  const getAllCourses = JSON.parse(localStorage.getItem("Courses"));
-  const [courses, setCourses] = useState(getAllCourses || []);
     const user = JSON.parse(localStorage.getItem("currentUser"));
-
+    const [courses, setCourses] = useState([]);
   const colim = [
     {
       label:"Monday", value:"Monday"
@@ -105,37 +103,7 @@ const Teacherdashboard = () => {
       value: "21",
     },
   ];
-  const menu = [
-    {
-      key: "1",
-      label: (
-<Tooltip  title="Edit this course">Edit</Tooltip>
-      ),
-    },
-    {
-      key: "2",
-      label: (
-      <Tooltip title="This will delete your course permanently">
-        Delete
-      </Tooltip>),
-    },
-    {
-      key:"4",
-      label:(
-        <Tooltip title="This will be in pending and can be edit in pending courses">
-          Send to Pending
-        </Tooltip>
-      ),
-    },
-    {
-      key: "3",
-      label: (
-      <Tooltip title="This course will be sent to admin to be approved. If approved, it will show on the website">
-        Send to Approve
-      </Tooltip>
-    ),
-    },
-  ];
+  
   const opt = [
     {
       label: "no offer",
@@ -293,16 +261,16 @@ const Teacherdashboard = () => {
     {
       title:"Status",
       dataIndex:"status",
-      render: () => "pending",
+      render: (status) =>
+        status === "approved" ? "Approved" : "Pending",
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <>
-          <Dropdown trigger="click" menu={{ items: menu }}>
-            <Button shape="circle" icon={<SettingOutlined />} className="btn" />
-          </Dropdown>
+         <Button color="lime" type="dashed" >Accept</Button>
+         <Button style={{margin:"5px"}} color="danger" type="dashed">Reject</Button>
         </>
       ),
     },
@@ -337,22 +305,43 @@ const Teacherdashboard = () => {
       value: "35 students",
     },
   ];
-  const submitCourse = async () => { 
-  await fetch("/api/courses", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify(values),
-});
-const sendForApproval = async (courseId) => {
-  await fetch(
-    `http://localhost:60977/api/courses/${courseId}/send`,
-    { method: "PATCH" }
-  );
-};
+   const fetchCourses = async () => {
+    const res = await fetch(
+      `http://localhost:60977/api/courses/teacher/${currentUser._id}`
+    );
+    const data = await res.json();
+    setCourses(Array.isArray(data) ? data : []);
   };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  // 🔹 CREATE COURSE
+  const handleCreate = async () => {
+    try {
+      const values = await form.validateFields();
+
+      await fetch("http://localhost:60977/api/courses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...values,
+          teacherId: currentUser._id,
+        }),
+      });
+
+      message.success("Course sent for admin approval");
+      setOpen(false);
+      form.resetFields();
+      fetchCourses();
+    } catch (err) {
+      message.error("Failed to create course");
+    }
+  };
+
   const tem = [
     {
       key: "1",
@@ -382,7 +371,7 @@ const sendForApproval = async (courseId) => {
                 title="Create Course"
                 trigger={<Button icon={<PlusOutlined />}>Create course</Button>}
               >
-                <ProForm.Group >
+                <ProForm.Group onFinish={handleCreate} >
                   <ProFormText
                     width="md"
                     name="coursename"
