@@ -57,7 +57,7 @@ const handleDashboard = async () => {
   if (data.role === "teacher") {
     navigate("/teacherdashboard");
   } else if (data.role === "student") {
-    navigate("/studentdashboard");
+    navigate("/courses");
   }
 };
   

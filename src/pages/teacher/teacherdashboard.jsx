@@ -134,7 +134,6 @@ const Teacherdashboard = () => {
         Send to Approve
       </Tooltip>
     ),
-
     },
   ];
   const opt = [
@@ -183,10 +182,10 @@ const Teacherdashboard = () => {
     { label: "6 months", value: "6months" },
     { label: "5 months", value: "5 months" },
     { label: "3 months", value: "3months" },
-    { label: "1 months", value: "1 months" },
+    { label: "1 month", value: "1 month" },
     { label: "3 weeks", value: "3 weeks" },
   ];
-  const approvedTeacherSignupData = JSON.parse(localStorage.getItem("approvedTeacherSignupData")) || [];
+  const approvedTeacher = JSON.parse(localStorage.getItem("approvedTeachers")) || [];
   const columns = [
     {
       title: "Course Name",
@@ -292,6 +291,11 @@ const Teacherdashboard = () => {
       key: "classcapacity",
     },
     {
+      title:"Status",
+      dataIndex:"status",
+      render: () => "pending",
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => (
@@ -333,6 +337,22 @@ const Teacherdashboard = () => {
       value: "35 students",
     },
   ];
+  const submitCourse = async () => { 
+  await fetch("/api/courses", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify(values),
+});
+const sendForApproval = async (courseId) => {
+  await fetch(
+    `http://localhost:60977/api/courses/${courseId}/send`,
+    { method: "PATCH" }
+  );
+};
+  };
   const tem = [
     {
       key: "1",
@@ -381,7 +401,7 @@ const Teacherdashboard = () => {
                       { required: true, message: "Please select time range!" },
                     ]}
                     placeholder="please select course type"
-                      options={[{ label: approvedTeacherSignupData.expertise, value: approvedTeacherSignupData.expertise }]}
+                      options={[{ label: approvedTeacher.expertise, value: approvedTeacher.expertise }]}
                   />
                   <ProFormSelect
                     width="md"
