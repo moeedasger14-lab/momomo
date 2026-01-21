@@ -17,12 +17,12 @@ import {
   ProTable,
 } from "@ant-design/pro-components";
 import { Tabs, Card, Alert, Button, Dropdown, TimePicker, Tooltip } from "antd";
-import React, { Children, useState } from "react";
+import React, { Children, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Teacherdashboard = () => {
   const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const [courses, setCourses] = useState([]);
   const colim = [
     {
@@ -306,42 +306,57 @@ const Teacherdashboard = () => {
     },
   ];
    const fetchCourses = async () => {
+  const res = await fetch("http://localhost:60977/api/courses/teacher", {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  const data = await res.json();
+  setCourses(Array.isArray(data) ? data : []);
+};
+
+
+const [teacher, setTeacher] = useState(null);
+const formRef = useRef();
+
+useEffect(() => {
+  const fetchTeacher = async () => {
     const res = await fetch(
-      `http://localhost:60977/api/courses/teacher/${currentUser._id}`
+      `http://localhost:60977/api/admin/users/${currentUser._id}`
     );
     const data = await res.json();
-    setCourses(Array.isArray(data) ? data : []);
+    setTeacher(data);
+
+    // 👇 SET FORM VALUES HERE
+    formRef.current?.setFieldsValue({
+      teachernames: data.fullName,
+      teachergender: data.gender,
+      teacherexperience: data.teachingexperience,
+    });
   };
 
+  fetchTeacher();
+}, []);
   useEffect(() => {
     fetchCourses();
   }, []);
+const handleCreate = async (values) => {
+  await fetch("http://localhost:60977/api/courses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...values,
+      teacher: currentUser._id, // 🔴 REQUIRED
+    }),
+  });
 
+  fetchCourses();
+  return true;
+};
   // 🔹 CREATE COURSE
-  const handleCreate = async () => {
-    try {
-      const values = await form.validateFields();
-
-      await fetch("http://localhost:60977/api/courses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...values,
-          teacherId: currentUser._id,
-        }),
-      });
-
-      message.success("Course sent for admin approval");
-      setOpen(false);
-      form.resetFields();
-      fetchCourses();
-    } catch (err) {
-      message.error("Failed to create course");
-    }
-  };
-
+ 
   const tem = [
     {
       key: "1",
@@ -363,7 +378,7 @@ const Teacherdashboard = () => {
               <ModalForm
                
                 dateFormatter="string"
-               
+               formRef={formRef}
              submitter={false}
                 width={800}
                 autoFocusFirstInput
@@ -381,7 +396,7 @@ const Teacherdashboard = () => {
                       { required: true, message: "Please select time range!" },
                     ]}
                   />
-                  <ProFormSelect
+                  <ProFormText
                     width="md"
                     name="coursetype"
                     label="Course Type:"
@@ -390,8 +405,8 @@ const Teacherdashboard = () => {
                       { required: true, message: "Please select time range!" },
                     ]}
                     placeholder="please select course type"
-                      options={[{ label: approvedTeacher.expertise, value: approvedTeacher.expertise }]}
-                  />
+                    disabled
+                     />
                   <ProFormSelect
                     width="md"
                     name="duration"
@@ -482,7 +497,7 @@ const Teacherdashboard = () => {
                       showCount: true, // shows "x / 200" below the textarea
                     }}
                   />
-                  <ProFormSelect
+                  <ProFormText
                     width="md"
                     name="teachernames"
                     label="Teacher name:"
@@ -490,9 +505,7 @@ const Teacherdashboard = () => {
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                    options={[
-                      { label: approvedTeacherSignupData.fullName, value: approvedTeacherSignupData.fullName },
-                    ]}
+                   disabled
                   />
                   <ProFormSelect
                     width="sm"
@@ -504,7 +517,7 @@ const Teacherdashboard = () => {
                     ]}
                     options={co}
                   />
-                  <ProFormSelect
+                  <ProFormText
                     width="md"
                     name="teachergender"
                     label="Teacher Gender:"
@@ -512,9 +525,9 @@ const Teacherdashboard = () => {
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                    options={[{ label: approvedTeacherSignupData.gender, value: approvedTeacherSignupData.gender }]}
+                   disabled
                   />
-                  <ProFormSelect
+                  <ProFormText
                     width="md"
                     name="teacherexperience"
                     label="Teaching Experience:"
@@ -522,12 +535,7 @@ const Teacherdashboard = () => {
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                    options={[
-                      {
-                        label: approvedTeacherSignupData.teachingExperience,
-                        value: approvedTeacherSignupData.teachingExperience,
-                      },
-                    ]}
+                   disabled
                   />
                   <ProFormSelect
                     width="md"

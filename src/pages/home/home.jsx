@@ -41,11 +41,11 @@ const Home = () => {
  const shown = useRef(false);
   const [courses, setCourses] = useState([]);
 
-  useEffect(() => {
-    fetch("http://localhost:60977/api/courses/approved")
-      .then((res) => res.json())
-      .then((data) => setCourses(Array.isArray(data) ? data : []));
-  }, []);
+ useEffect(() => {
+  fetch("http://localhost:60977/api/courses/approved")
+    .then(res => res.json())
+    .then(setCourses);
+}, []);
   const handleMessage = (values) => {
     const lastSent = localStorage.getItem("lastMessageTime");
     const now = Date.now();
