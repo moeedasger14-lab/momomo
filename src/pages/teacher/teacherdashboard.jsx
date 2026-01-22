@@ -318,8 +318,8 @@ const Teacherdashboard = () => {
 };
 
 
+const [form] = ProForm.useForm();
 const [teacher, setTeacher] = useState(null);
-const formRef = useRef();
 
 useEffect(() => {
   const fetchTeacher = async () => {
@@ -342,6 +342,25 @@ useEffect(() => {
   useEffect(() => {
     fetchCourses();
   }, []);
+  const openCreateCourseModal = async () => {
+  const res = await fetch("http://localhost:60977/api/auth/me", {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  const data = await res.json();
+  setTeacher(data);
+
+  // 🔑 THIS IS WHAT YOU WERE MISSING
+  form.setFieldsValue({
+    teacherName: data.fullName,
+    gender: data.gender,
+    experience: data.teacherProfile?.experience,
+  });
+
+  setModalOpen(true);
+};
 const handleCreate = async (values) => {
   await fetch("http://localhost:60977/api/courses", {
     method: "POST",
@@ -352,10 +371,8 @@ const handleCreate = async (values) => {
     }),
   });
 
-  fetchCourses();
-  return true;
+  setModalOpen(true);
 };
-  // 🔹 CREATE COURSE
  
   const tem = [
     {
@@ -505,7 +522,12 @@ const handleCreate = async (values) => {
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                   disabled
+                   options={
+        teacher
+          ? [{ label: teacher.fullName, value: teacher.fullName }]
+          : []
+      }
+      disabled
                   />
                   <ProFormSelect
                     width="sm"
@@ -525,17 +547,22 @@ const handleCreate = async (values) => {
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                   disabled
+                   options={[
+        { label: "Male", value: "male" },
+        { label: "Female", value: "female" },
+      ]}
+      disabled
                   />
                   <ProFormText
                     width="md"
-                    name="teacherexperience"
-                    label="Teaching Experience:"
+                   name="experience"
+      label="Teaching Experience"
+      disabled
                     placeholder="Please select your teaching experience"
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                   disabled
+                 
                   />
                   <ProFormSelect
                     width="md"
