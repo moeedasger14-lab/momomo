@@ -318,7 +318,7 @@ const Teacherdashboard = () => {
 };
 
 
-const [form] = ProForm.useForm();
+const [formRef] = ProForm.useForm();
 const [teacher, setTeacher] = useState(null);
 
 useEffect(() => {
@@ -329,11 +329,11 @@ useEffect(() => {
     const data = await res.json();
     setTeacher(data);
 
-    // 👇 SET FORM VALUES HERE
+    // ✅ THIS is what fills the form
     formRef.current?.setFieldsValue({
       teachernames: data.fullName,
       teachergender: data.gender,
-      teacherexperience: data.teachingexperience,
+      experience: data.teacherProfile?.experience,
     });
   };
 
@@ -356,7 +356,7 @@ useEffect(() => {
   form.setFieldsValue({
     teacherName: data.fullName,
     gender: data.gender,
-    experience: data.teacherProfile?.experience,
+    experience: data.teacherProfile?.teachingExperience,
   });
 
   setModalOpen(true);
@@ -422,7 +422,7 @@ const handleCreate = async (values) => {
                       { required: true, message: "Please select time range!" },
                     ]}
                     placeholder="please select course type"
-                    disabled
+                  
                      />
                   <ProFormSelect
                     width="md"
@@ -514,7 +514,7 @@ const handleCreate = async (values) => {
                       showCount: true, // shows "x / 200" below the textarea
                     }}
                   />
-                  <ProFormText
+                  <ProFormSelect
                     width="md"
                     name="teachernames"
                     label="Teacher name:"
@@ -527,7 +527,7 @@ const handleCreate = async (values) => {
           ? [{ label: teacher.fullName, value: teacher.fullName }]
           : []
       }
-      disabled
+    
                   />
                   <ProFormSelect
                     width="sm"
@@ -539,7 +539,7 @@ const handleCreate = async (values) => {
                     ]}
                     options={co}
                   />
-                  <ProFormText
+                  <ProFormSelect
                     width="md"
                     name="teachergender"
                     label="Teacher Gender:"
@@ -547,22 +547,27 @@ const handleCreate = async (values) => {
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                   options={[
-        { label: "Male", value: "male" },
-        { label: "Female", value: "female" },
-      ]}
-      disabled
+                  options={
+        teacher
+          ? [{ label: teacher.gender, value: teacher.gender }]
+          : []
+      }
                   />
-                  <ProFormText
+                  <ProFormSelect
                     width="md"
                    name="experience"
       label="Teaching Experience"
-      disabled
+     
                     placeholder="Please select your teaching experience"
                     rules={[
                       { required: true, message: "Please select time range!" },
                     ]}
-                 
+             options={
+        teacher
+          ? [{ label: teacher.teacherProfile?.experience,
+             value: teacher.teacherProfile?.experience }]
+          : []
+      }
                   />
                   <ProFormSelect
                     width="md"
