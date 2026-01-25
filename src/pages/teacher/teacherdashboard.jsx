@@ -16,7 +16,7 @@ import {
   ProFormTimePicker,
   ProTable,
 } from "@ant-design/pro-components";
-import { Tabs, Card, Alert, Button, Dropdown, TimePicker, Tooltip, Select, Form } from "antd";
+import { Tabs, Card, Alert, Button, Dropdown, TimePicker, Tooltip, Select, Form, message } from "antd";
 import React, { Children, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -320,7 +320,8 @@ const Teacherdashboard = () => {
  const fetchCourses = async () => {
   const res = await fetch("http://localhost:60977/api/courses/teacher", {
     headers: {
-     Authorization: `Bearer ${localStorage.getItem("token")}`,
+       "Content-Type": "application/json",
+    
     },
     credentials: "include",
   });
@@ -343,7 +344,7 @@ useEffect(() => {
         teachergender: data.gender,
       });
     } catch (err) {
-      console.error("Fetch teacher error:", err);
+      console.error("Fetch teacher error:", err); 
     }
   };
   fetchTeacher();
@@ -362,17 +363,19 @@ const handleCreate = async (values) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`, // 🔥 REQUIRED
+     
     },
     body: JSON.stringify(payload),
   });
 
-  if (!res.ok) {
-    const err = await res.json();
-    console.error("Create error:", err);
-    return;
-  }
-
+ 
+   const data = await res.json();
+ 
+   if (!res.ok) {
+     message.error(data.message);
+     return;
+   }
+ 
   fetchCourses();
 };
   const tem = [
@@ -418,7 +421,7 @@ const handleCreate = async (values) => {
   <ProFormSelect
     width="md"
     name="expertise"
-    label="Course Type / Expertise"
+    label=" Expertise"
     placeholder="Please select your expertise"
     rules={[{ required: true, message: "Please select an expertise!" }]}
    options={coplet}
