@@ -39,13 +39,17 @@ const Home = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("currentUser"));
  const shown = useRef(false);
-  const [courses, setCourses] = useState([]);
+ const [courses, setCourses] = useState([]);
 
- useEffect(() => {
-  fetch("http://localhost:60977/api/courses/approved")
-    .then(res => res.json())
-    .then(setCourses);
+useEffect(() => {
+  fetchApprovedCourses();
 }, []);
+
+const fetchApprovedCourses = async () => {
+  const res = await fetch("http://localhost:60977/api/courses/approved");
+  const data = await res.json();
+  setCourses(data);
+};
   const handleMessage = (values) => {
     const lastSent = localStorage.getItem("lastMessageTime");
     const now = Date.now();

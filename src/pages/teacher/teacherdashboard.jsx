@@ -16,14 +16,17 @@ import {
   ProFormTimePicker,
   ProTable,
 } from "@ant-design/pro-components";
-import { Tabs, Card, Alert, Button, Dropdown, TimePicker, Tooltip } from "antd";
+import { Tabs, Card, Alert, Button, Dropdown, TimePicker, Tooltip, Select, Form } from "antd";
 import React, { Children, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Teacherdashboard = () => {
   const navigate = useNavigate();
+  const [form] = ProForm.useForm();
+  const [teacher, setTeacher] = useState([]);
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const [courses, setCourses] = useState([]);
+   
   const colim = [
     {
       label:"Monday", value:"Monday"
@@ -103,7 +106,20 @@ const Teacherdashboard = () => {
       value: "21",
     },
   ];
-  
+  const coplet = [
+    {
+      label: "math",
+      value: "math",
+    },
+{
+  label: "english",
+  value: "english",
+},
+{
+  label: "urdu",
+  value:"urdu",
+}
+  ]
   const opt = [
     {
       label: "no offer",
@@ -162,8 +178,8 @@ const Teacherdashboard = () => {
     },
     {
       title: "Which type of Course",
-      dataIndex: "coursetype",
-      key: "coursetype",
+      dataIndex: "expertise",
+      key: "expertise",
     },
     {
       title: "Duration",
@@ -249,11 +265,6 @@ const Teacherdashboard = () => {
       key: "teachergender",
     },
     {
-      title: "Teaching Experience",
-      dataIndex: "teacherexperience",
-      key: "teacherexperience",
-    },
-    {
       title: "Class Capacity",
       dataIndex: "classcapacity",
       key: "classcapacity",
@@ -305,10 +316,11 @@ const Teacherdashboard = () => {
       value: "35 students",
     },
   ];
-   const fetchCourses = async () => {
+  
+ const fetchCourses = async () => {
   const res = await fetch("http://localhost:60977/api/courses/teacher", {
     headers: {
-      "Content-Type": "application/json",
+     Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     credentials: "include",
   });
@@ -316,64 +328,53 @@ const Teacherdashboard = () => {
   const data = await res.json();
   setCourses(Array.isArray(data) ? data : []);
 };
-
-
-const [formRef] = ProForm.useForm();
-const [teacher, setTeacher] = useState(null);
-
 useEffect(() => {
   const fetchTeacher = async () => {
-    const res = await fetch(
-      `http://localhost:60977/api/admin/users/${currentUser._id}`
-    );
-    const data = await res.json();
-    setTeacher(data);
+    try {
+      const res = await fetch(
+        `http://localhost:60977/api/admin/users/${currentUser._id}`
+      );
+      const data = await res.json();
+      setTeacher(data);
 
-    // ✅ THIS is what fills the form
-    formRef.current?.setFieldsValue({
-      teachernames: data.fullName,
-      teachergender: data.gender,
-      experience: data.teacherProfile?.experience,
-    });
+      // Set initial values once teacher is loaded
+      form.setFieldsValue({
+        teachernames: data.fullName,
+        teachergender: data.gender,
+      });
+    } catch (err) {
+      console.error("Fetch teacher error:", err);
+    }
   };
-
   fetchTeacher();
 }, []);
   useEffect(() => {
     fetchCourses();
   }, []);
-  const openCreateCourseModal = async () => {
-  const res = await fetch("http://localhost:60977/api/auth/me", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-
-  const data = await res.json();
-  setTeacher(data);
-
-  // 🔑 THIS IS WHAT YOU WERE MISSING
-  form.setFieldsValue({
-    teacherName: data.fullName,
-    gender: data.gender,
-    experience: data.teacherProfile?.teachingExperience,
-  });
-
-  setModalOpen(true);
-};
-const handleCreate = async (values) => {
-  await fetch("http://localhost:60977/api/courses", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...values,
-      teacher: currentUser._id, // 🔴 REQUIRED
-    }),
-  });
-
-  setModalOpen(true);
-};
  
+const handleCreate = async (values) => {
+  const payload = {
+    ...values,
+    timing: `${values.timing[0]} - ${values.timing[1]}`,
+  };
+
+  const res = await fetch("http://localhost:60977/api/courses/create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`, // 🔥 REQUIRED
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    console.error("Create error:", err);
+    return;
+  }
+
+  fetchCourses();
+};
   const tem = [
     {
       key: "1",
@@ -393,17 +394,17 @@ const handleCreate = async (values) => {
             }}
             extra={
               <ModalForm
-               
+               onFinish={handleCreate}
                 dateFormatter="string"
-               formRef={formRef}
-             submitter={false}
+        
+            
                 width={800}
                 autoFocusFirstInput
                 scrollToFirstError
                 title="Create Course"
                 trigger={<Button icon={<PlusOutlined />}>Create course</Button>}
               >
-                <ProForm.Group onFinish={handleCreate} >
+                
                   <ProFormText
                     width="md"
                     name="coursename"
@@ -413,17 +414,16 @@ const handleCreate = async (values) => {
                       { required: true, message: "Please select time range!" },
                     ]}
                   />
-                  <ProFormText
-                    width="md"
-                    name="coursetype"
-                    label="Course Type:"
-                    mode="single"
-                    rules={[
-                      { required: true, message: "Please select time range!" },
-                    ]}
-                    placeholder="please select course type"
-                  
-                     />
+        
+  <ProFormSelect
+    width="md"
+    name="expertise"
+    label="Course Type / Expertise"
+    placeholder="Please select your expertise"
+    rules={[{ required: true, message: "Please select an expertise!" }]}
+   options={coplet}
+  />
+       
                   <ProFormSelect
                     width="md"
                     name="duration"
@@ -436,7 +436,7 @@ const handleCreate = async (values) => {
                   />
                   <ProFormText
                     width="md"
-                    name="courseprice"
+                    name="coursePrice"
                     label="Course Price:"
                     placeholder="please enter your course price"
                     rules={[
@@ -553,22 +553,12 @@ const handleCreate = async (values) => {
           : []
       }
                   />
-                  <ProFormSelect
-                    width="md"
-                   name="experience"
-      label="Teaching Experience"
-     
-                    placeholder="Please select your teaching experience"
-                    rules={[
-                      { required: true, message: "Please select time range!" },
-                    ]}
-             options={
-        teacher
-          ? [{ label: teacher.teacherProfile?.experience,
-             value: teacher.teacherProfile?.experience }]
-          : []
-      }
-                  />
+             
+   
+   
+  
+    
+             
                   <ProFormSelect
                     width="md"
                     name="classcapacity"
@@ -579,13 +569,13 @@ const handleCreate = async (values) => {
                     placeholder="Please select your class capacity"
                     options={c}
                   />
-                 <Button htmlType="submit" width="md" type="primary">Submit</Button>
-                </ProForm.Group>
+                
+             
               </ModalForm>
             }
           >
             <ProTable
-            rowKey="id"
+            rowKey="_id"
            
             dateFormatter="string"
               scroll={{ x: 1400 }}
